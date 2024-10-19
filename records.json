@@ -1,0 +1,24 @@
+[
+    {
+        "user": "John Doe",
+        "store": "Store A",
+        "amount": 100,
+        "time": "2024-10-08",
+        "check": true
+    },
+    {
+        "user": "Jane Doe",
+        "store": "Store B",
+        "amount": 200,
+        "time": "2024-10-08",
+        "check": true
+    },
+    {
+        "user": "qqq",
+        "time": "2024-10-10 03:33:17",
+        "store": "helper",
+        "check": true,
+        "amount": 200,
+        "type": "claim"
+    }
+]

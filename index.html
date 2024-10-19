@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Coupon System</title>
+</head>
+<body>
+    <h1>Meal Coupon System</h1>
+    <div id="message"></div>
+    <script>
+        // 假設 QR code 包含的 URL 格式：?id=user123&action=claim
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+        const action = urlParams.get('action');
+	const store = urlParams.get('store');
+        if (userId && action) {
+            // 發送請求到後端 PHP API
+            fetch(`api.php?id=${userId}&action=${action}&store=${store}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('message').textContent = data.message;
+                })
+                .catch(error => {
+                    document.getElementById('message').textContent = 'Error occurred!';
+                });
+        } else {
+            document.getElementById('message').textContent = 'Invalid QR Code';
+        }
+    </script>
+</body>
+</html>

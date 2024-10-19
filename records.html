@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Data Viewer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h2>交易紀錄</h2>
+
+  <!-- Store selection -->
+  <label for="storeSelect">Select Store:</label>
+  <select id="storeSelect">
+    <option value="all">All</option>
+    <!-- Store options will be populated here -->
+  </select>
+
+  <!-- Checkbox for Check status -->
+  <label>
+    <input type="checkbox" id="checkFlag"> Show Checked Only
+  </label>
+
+  <button id="fetchDataBtn">查詢</button>
+  
+  <div id="sum">
+    <!-- Data cards will be inserted here by JS -->
+  </div>
+
+  <div id="dataContainer">
+    <!-- Data cards will be inserted here by JS -->
+  </div>
+
+  <script>
+
+    // 在頁面加載時抓取不重複的 store 選項
+    window.onload = function() {
+      fetch('stores.php')
+        .then(response => response.json())
+        .then(stores => {
+          const storeSelect = document.getElementById("storeSelect");
+          
+          // 動態生成 store 選項
+          stores.forEach(store => {
+            const option = document.createElement("option");
+            option.value = store;
+            option.textContent = store;
+            storeSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Error fetching store options:', error));
+    };
+
+    // 從 URL 中讀取參數
+    const urlParams = new URLSearchParams(window.location.search);
+    const storeName = urlParams.get('store') || "未指定店家";
+    const checkFlag = urlParams.get('check_flag') || "未指定檢查";
+    console.log(`storeName: ${storeName}, checkFlag: ${checkFlag}`);
+    if (storeName && checkFlag) {
+      getRecords(storeName, checkFlag);
+    }
+
+    document.getElementById("fetchDataBtn").onclick = function() {
+      const store = document.getElementById("storeSelect").value;
+      const checkFlag = document.getElementById("checkFlag").checked;
+      getRecords(store, checkFlag);
+    };
+
+
+    const ws = new WebSocket('ws://192.168.0.79:8080');  // 連接 PHP WebSocket 伺服器
+
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log('Received message from WebSocket:', data);
+        if (data.event === 'consume') {
+          // 假設這裡根據店家名稱刷新紀錄
+          const store = document.getElementById("storeSelect").value;
+          if (storeName === data.store || store === 'all') {
+              getRecords(storeName, checkFlag);  // 假設這是用來刷新交易紀錄的函數
+          }
+        }
+    };
+
+    ws.onopen = function() {
+        console.log('Connected to WebSocket server');
+    };
+
+
+
+    function getRecords(store, checkFlag) {
+      console.log(`getRecords`);
+      // Fetch data with selected store and check flag
+      fetch(`records.php?store=${store}&check_flag=${checkFlag}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log(`data: ${JSON.stringify(data, undefined, 2)}`);
+          // Clear previous data
+          const container = document.getElementById("dataContainer");
+          container.innerHTML = '';
+          let sum = 0;
+          data.forEach(item => {
+            const card = document.createElement("div");
+            card.classList.add("card");
+
+            const cardContent = document.createElement("div");
+            cardContent.classList.add("card-content");
+
+            // Card content
+            console.log(`id: ${item.id}, member_id: ${item.member_id}`);
+            const no = document.createElement("h3");
+            no.textContent = item.id.toString().padStart(5, '0');
+            // str.padStart(6, '0');
+            cardContent.appendChild(no);
+
+            const name = document.createElement("h3");
+            name.textContent = item.member;
+            cardContent.appendChild(name);
+
+            const store = document.createElement("p");
+            store.textContent = `店家: ${item.store}`;
+            cardContent.appendChild(store);
+
+            const amount = document.createElement("p");
+            amount.textContent = `金額: ${item.amount}`;
+            cardContent.appendChild(amount);
+            sum += item.amount;
+
+            const date = document.createElement("p");
+            date.textContent = `時間: ${item.trade_time}`;
+            cardContent.appendChild(date);
+
+            card.appendChild(cardContent);
+
+            // Create switch for Check status
+            const switchWrapper = document.createElement("label");
+            switchWrapper.classList.add("switch");
+
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.checked = item.check_flag == 1; // 1表示已檢查
+            input.onchange = function() {
+              if (input.checked) {
+                cancelButton.style.display = 'block'; // Show cancel button
+              } else {
+                cancelCheck(item.id, item.member_id);
+                cancelButton.style.display = 'none'; // Hide cancel button
+              }
+            };
+
+            const slider = document.createElement("span");
+            slider.classList.add("slider");
+
+            switchWrapper.appendChild(input);
+            switchWrapper.appendChild(slider);
+            card.appendChild(switchWrapper);
+
+            // Create Cancel button
+            const cancelButton = document.createElement("button");
+            cancelButton.textContent = "Cancel";
+            cancelButton.classList.add("cancel-button");
+            cancelButton.style.display = 'none'; // Initially hidden
+            cancelButton.onclick = function() {
+              cancelCheck(item.id, item.member_id);
+              input.checked = false; // 滑動開關設置為未檢查狀態
+              cancelButton.style.display = 'none'; // Hide cancel button
+            };
+
+            card.appendChild(cancelButton);
+
+            // Append the card to the container
+            container.appendChild(card);
+          });
+          document.getElementById("sum").textContent = `${sum>=0 ? '支出' : '收入'} ${sum>=0 ? sum : 0-sum} 元`;
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Function to cancel the check status
+    function cancelCheck(id, memberId) {
+      fetch('update.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: id,
+          check: false
+        })
+      })
+      .then(response => response.json())
+      .then(updated => {
+        if (updated.success) {
+          // const encrypted = updated.encrypted.toString();
+          console.log(`update memberId: ${memberId}`);
+          const event = 'records';
+          ws.send(JSON.stringify({ event, memberId: memberId, time: new Date().toISOString() }));
+          console.log("Check status canceled.");
+        }
+      })
+      .catch(error => console.error('Error canceling check status:', error));
+    }
+
+  </script>
+</body>
+</html>

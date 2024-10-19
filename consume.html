@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消費頁面</title>
+    <link rel="stylesheet" href="consume.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .calculator {
+            margin-bottom: 20px;
+        }
+        .buttons button {
+            width: 60px;
+            height: 60px;
+            font-size: 20px;
+            margin: 5px;
+        }
+        input[type="text"] {
+            width: 200px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>消費頁面</h1>
+
+        <!-- 消費店家顯示 -->
+        <div>
+            <label for="store">消費店家:</label>
+            <input type="text" id="store" readonly>
+        </div>
+
+        <!-- 顯示剩餘金額 -->
+        <div>
+            <label for="remaining">剩餘金額:</label>
+            <input type="text" id="remaining" readonly>
+        </div>
+
+        <!-- 計算機介面 -->
+        <div id="calculator" class="calculator">
+            <input type="text" id="amount" readonly placeholder="輸入消費金額">
+            <div class="buttons">
+                <button onclick="appendNumber(1)">1</button>
+                <button onclick="appendNumber(2)">2</button>
+                <button onclick="appendNumber(3)">3</button>
+                <button onclick="appendNumber(4)">4</button>
+                <button onclick="appendNumber(5)">5</button>
+                <button onclick="appendNumber(6)">6</button>
+                <button onclick="appendNumber(7)">7</button>
+                <button onclick="appendNumber(8)">8</button>
+                <button onclick="appendNumber(9)">9</button>
+                <button onclick="clearAmount()">C</button>
+                <button onclick="appendNumber(0)">0</button>
+            </div>
+        </div>
+
+        <!-- 消費按鈕 -->
+        <button id="consumeButton">消費</button>
+
+        <!-- 顯示訊息 -->
+        <div id="message"></div>
+    </div>
+
+    <script>
+        let memberId;
+        const ws = new WebSocket('ws://192.168.0.79:8080');  // 連接 PHP WebSocket 伺服器
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('Received message from WebSocket:', data);
+            if (data.event === 'records') {
+                console.log(`memberId: ${memberId}, data.memberId: ${data.memberId} `);
+                // 假設這裡根據店家名稱刷新紀錄
+                if (memberId === data.memberId) {
+                    fetchBalance();  // 假設這是用來刷新交易紀錄的函數
+                }
+            }
+        };
+
+        ws.onopen = function() {
+            console.log('Connected to WebSocket server');
+        };
+
+
+
+        // 從 URL 中讀取參數
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeName = urlParams.get('store') || "未指定店家";
+        let memberName;
+        // const memberName = urlParams.get('member') || "未指定會員";
+        // console.log(memberName);
+        document.getElementById('store').value = storeName;
+
+        // 檢查 localStorage 是否已有加密資料
+        const encryptedId = localStorage.getItem('dcchurch2024christmas');
+        console.log(`encryptedId: ${encryptedId}`);
+        fetchBalance();
+        // if (encryptedId) {
+        //     fetchBalance(encryptedId);
+        // } else {
+        //     // document.getElementById('claimForm').style.display = 'block';
+        // }
+        
+
+        // // 查詢會員剩餘金額
+        function fetchBalance() {
+            if (encryptedId) {
+                fetch('balance.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ encryptedId: encryptedId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.balance !== undefined) {
+                        memberId = data.member_id;
+                        memberName = data.member;
+                        document.getElementById('remaining').value = data.balance;
+                    } else {
+                        document.getElementById('message').textContent = "無法查詢剩餘金額。";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+
+        
+
+        // 計算機功能
+        function appendNumber(num) {
+            const amountInput = document.getElementById("amount");
+            amountInput.value = amountInput.value + num;
+        }
+
+        function clearAmount() {
+            document.getElementById("amount").value = "";
+        }
+
+        // 消費按鈕功能
+        document.getElementById('consumeButton').onclick = function() {
+            const remaining = document.getElementById('remaining').value;
+            const amount = document.getElementById('amount').value;
+            const store = document.getElementById('store').value;
+            console.log(`remaining: ${remaining}, amount: ${amount}`);
+
+            if (Number(remaining)<=0 || Number(remaining) < Number(amount)) {
+                alert("剩餘金額不足");
+                clearAmount();
+                return;
+            }
+            console.log(`amount: ${amount}, store: ${store}, memberName: ${memberName}`);
+
+            if (amount.trim() === "") {
+                alert("請輸入消費金額！");
+                return;
+            }
+
+            const negativeAmount = -Math.abs(amount); // 將金額轉為負值
+
+            // 發送資料到 PHP 並更新剩餘金額
+            fetch('consume.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    encryptedId: encryptedId,
+                    member: memberName,
+                    store: store, 
+                    amount: negativeAmount, 
+                    check_flag: true 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('message');
+                if (data.success) {
+                    messageDiv.textContent = "成功完成消費！";
+                    // 更新剩餘金額
+                    fetchBalance();
+                    clearAmount();
+                    // 當消費成功後，發送 WebSocket 通知
+                    const event = 'consume';
+                    ws.send(JSON.stringify({ event, store: store, time: new Date().toISOString() }));
+                } else {
+                    messageDiv.textContent = "消費失敗！請稍後再試。";
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        };
+    </script>
+</body>
+</html>

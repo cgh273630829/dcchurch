@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>領取餐券</title>
+    <link rel="stylesheet" href="claim.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script> <!-- 引入 QR code 庫 -->
+</head>
+<body>
+    <h1>領取餐券</h1>
+
+    <div id="claimedMessage" style="display:none;">
+        <p>您已經領取餐券！</p>
+        <canvas id="qrCode"></div> <!-- QR code 生成區域 -->
+    </div>
+
+    <div id="claimForm" style="display:none;">
+        <input type="text" id="memberName" placeholder="輸入會員名稱" required>
+        <input type="number" id="numberOfPeople" placeholder="輸入人數" min="1" value="1" required>
+        <button id="claimButton">領取餐券</button>
+    </div>
+
+    <div id="message"></div>
+    <button onclick="clearLocalStorage()">Clear LocalStorage</button>
+
+    <script>
+        let idString;
+        const ws = new WebSocket('ws://192.168.0.79:8080');  // 連接 PHP WebSocket 伺服器
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('Received message from WebSocket:', data);
+            if (data.event === 'helper') {
+                console.log(`helper`);
+                console.log(`idString: ${idString}, member_id: ${data.member_id}`);
+                // 假設這裡根據店家名稱刷新紀錄
+                if (idString === data.member_id) {
+                    location.reload();
+                }
+            }
+        };
+
+        ws.onopen = function() {
+            console.log('Connected to WebSocket server');
+        };
+
+
+        // 檢查 localStorage 是否已有加密資料
+        const encryptedId = localStorage.getItem('dcchurch2024christmas');
+        console.log(encryptedId);
+
+        if (encryptedId) {
+            // generateKey().then(key => {
+            //     decryptData(key, storedData).then(decryptedData => {
+                    // console.log(decryptedData);
+                    // 取得解密後的ID並查詢資料庫
+            fetch('claim_info.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ encryptedId: encryptedId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(`data.success: ${data.success}`);
+                if (data.success) {
+                    idString = data.member_id.toString();
+                    const name = data.member;
+                    const count = data.amount / 200;
+                    const checkFlag = data.check_flag;
+                    document.getElementById('claimedMessage').style.display = 'block';
+                    console.log(`Name: ${data.member}, People: ${count}`);
+                    if (!checkFlag) {
+                        const qrContent = `http://192.168.0.79/dcchurch/helper.html?member_id=${idString}`;
+                        console.log(qrContent);
+                        QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
+                            if (error) console.error(error);
+                            console.log('QR code generated!');
+                        });
+                    }
+                    document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已開通完成' : '請至服務台完成開通' }。`;
+                } else  {
+                    document.getElementById('message').textContent = "查無資料！";
+                }
+            })
+            .catch(error => console.error('Error:', error));
+                // });
+            // });
+        } else {
+            document.getElementById('claimForm').style.display = 'block';
+        }
+
+        // 領取餐券按鈕邏輯
+        document.getElementById('claimButton').onclick = function() {
+            const memberName = document.getElementById('memberName').value;
+            const numberOfPeople = document.getElementById('numberOfPeople').value;
+
+            if (memberName.trim() === "" || numberOfPeople < 1) {
+                alert("請輸入有效的資料！");
+                return;
+            }
+
+            fetch('claim.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ memberName: memberName, numberOfPeople: numberOfPeople })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // let id = data.id.toString();
+                    idString = data.memberId.toString();
+                    let encryptedId = data.encrypted.toString();
+                    console.log(`encryptedId: ${encryptedId}`);
+                    // generateKey().then(key => {
+                    //     encryptData(key, id).then(encryptedId => {
+                    localStorage.setItem('dcchurch2024christmas', encryptedId);
+                    document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得 ${numberOfPeople} 張餐券，請至服務台完成開通。`;
+                    // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
+                    const qrContent = `http://192.168.0.79/dcchurch/helper.html?member_id=${idString}`;
+                    QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
+                        if (error) console.error(error);
+                        console.log('QR code generated!');
+                    });
+
+                    document.getElementById('claimedMessage').style.display = 'block';
+                    document.getElementById('claimForm').style.display = 'none';
+                    //     });
+                    // });
+                    const event = 'claim';
+                    ws.send(JSON.stringify({ event, time: new Date().toISOString() }));
+                } else {
+                    document.getElementById('message').textContent = "領取失敗，請稍後再試！";
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        };
+
+        function clearLocalStorage() {
+            localStorage.removeItem('dcchurch2024christmas');
+            alert('LocalStorage cleared for dcchurch2024christmas!');
+        }
+    </script>
+</body>
+</html>
