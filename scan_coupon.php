@@ -26,7 +26,7 @@ if ($encryptedId) {
     $key = generateKey();
     $decrypted = decryptData($key, $encryptedId);
     $logger->write("decrypted: $decrypted");
-    if ($decrypted === '00079' && isset($data['memberId'])) {
+    if ($decrypted === '00001' && isset($data['memberId'])) {
             $memberId = $data['memberId'];
             $logger->write("memberId: $memberId");
             // 更新資料庫，將對應 id 的 check_flag 改為 true
