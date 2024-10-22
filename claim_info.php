@@ -1,7 +1,7 @@
 <?php
 require_once 'Log.php';
 // 創建 Log 類的實例
-$logger = new Log('custom_log.txt');
+$logger = new Log('/var/log/php_errors.log');
 header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);

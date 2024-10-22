@@ -1,7 +1,7 @@
 <?php
 require_once 'Log.php';
 // 創建 Log 類的實例
-$logger = new Log('custom_log.txt');
+$logger = new Log('/var/log/php_errors.log');
 // 連接資料庫
 $servername = "localhost"; // 伺服器名稱
 $username = "cgh273630829"; // 使用者名稱

@@ -1,7 +1,7 @@
 <?php
 require_once 'Log.php';
 // 創建 Log 類的實例
-$logger = new Log('custom_log.txt');
+$logger = new Log('/var/log/php_errors.log');
 header('Content-Type: application/json');
 
 // 資料庫連接設定
@@ -12,7 +12,7 @@ $dbname = "christmas_market"; // 資料庫名稱
 
 // 建立連接
 $conn = new mysqli($servername, $username, $password, $dbname);
-
+    
 // 檢查連接
 if ($conn->connect_error) {
     die(json_encode(["success" => false, "message" => "連接失敗: " . $conn->connect_error]));

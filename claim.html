@@ -26,7 +26,7 @@
 
     <script>
         let idString;
-        const ws = new WebSocket('ws://192.168.0.79:8080');  // 連接 PHP WebSocket 伺服器
+        const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
 
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
@@ -73,7 +73,7 @@
                     document.getElementById('claimedMessage').style.display = 'block';
                     console.log(`Name: ${data.member}, People: ${count}`);
                     if (!checkFlag) {
-                        const qrContent = `http://192.168.0.79/dcchurch/helper.html?member_id=${idString}`;
+                        const qrContent = `http://34.80.165.113/dcchurch/christmas/helper.html?member_id=${idString}`;
                         console.log(qrContent);
                         QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
                             if (error) console.error(error);
@@ -121,7 +121,7 @@
                     localStorage.setItem('dcchurch2024christmas', encryptedId);
                     document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得 ${numberOfPeople} 張餐券，請至服務台完成開通。`;
                     // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
-                    const qrContent = `http://192.168.0.79/dcchurch/helper.html?member_id=${idString}`;
+                    const qrContent = `http://34.80.165.113/dcchurch/christmas/helper.html?member_id=${idString}`;
                     QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
                         if (error) console.error(error);
                         console.log('QR code generated!');

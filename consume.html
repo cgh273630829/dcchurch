@@ -99,7 +99,7 @@
 
     <script>
         let memberId;
-        const ws = new WebSocket('ws://192.168.0.79:8080');  // 連接 PHP WebSocket 伺服器
+        const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
 
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
