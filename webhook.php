@@ -30,23 +30,54 @@ function handleIncomingMessage($message, $userId) {
     
     // 根據消息內容返回不同的回應
     switch ($lowerMessage) {
-        case 'cgh':
-            return "你好！你的用戶 ID 是：{$userId}。有什麼我可以幫助你的？";
+        case 'cgh1':
+            return createButtonMessage("領取餐券", "http://34.80.165.113/christmas/claim.html");
+        case 'cgh2':
+            return createButtonMessage("市集導覽", "http://34.80.165.113/christmas/dashboard.html");
     }
+}
+
+// 創建包含按鈕的消息
+function createButtonMessage($text, $link) {
+    return [
+        'type' => 'template',
+        'altText' => '這是一個按鈕樣板',
+        'template' => [
+            'type' => 'buttons',
+            'title' => '聖誕市集',
+            'text' => '請點擊按鈕前往',
+            'actions' => [
+                [
+                    'type' => 'uri',
+                    'label' => $text,
+                    'uri' => $link // 替換為你的網址
+                ],
+            ],
+        ],
+    ];
 }
 
 // 回覆消息的函數
 function replyMessage($replyToken, $message, $accessToken) {
     $url = 'https://api.line.me/v2/bot/message/reply';
-    $data = [
-        'replyToken' => $replyToken,
-        'messages' => [
-            [
-                'type' => 'text',
-                'text' => $message,
+    
+    // 如果消息是按鈕消息，則需要特別處理
+    if (is_array($message)) {
+        $data = [
+            'replyToken' => $replyToken,
+            'messages' => [$message],
+        ];
+    } else {
+        $data = [
+            'replyToken' => $replyToken,
+            'messages' => [
+                [
+                    'type' => 'text',
+                    'text' => $message,
+                ],
             ],
-        ],
-    ];
+        ];
+    }
     
     $options = [
         'http' => [

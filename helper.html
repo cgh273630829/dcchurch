@@ -92,35 +92,46 @@
 
         // 從 URL 中讀取參數
         if (memberId) {
+            fetch('env.php')
+            .then(response => response.json())
+            .then(data => {
+                const IDKey = data.idKey;
+                console.log(`IDKey: ${IDKey}`);
 
-            const encryptedId = localStorage.getItem('dcchurch2024christmas');
-            console.log(encryptedId);
-
-            if (encryptedId) {
+                const encryptedId = localStorage.getItem(IDKey);
                 console.log(encryptedId);
-                fetch('scan_coupon.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ encryptedId: encryptedId, memberId: memberId})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('helper with memberId success');
-                    if (data.success) {
+
+                if (encryptedId) {
+                    console.log(encryptedId);
+                    fetch('scan_coupon.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ encryptedId: encryptedId, memberId: memberId})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
                         console.log('helper with memberId success');
-                        // cell.textContent = "已開通";
-                        const event = 'helper';
-                        ws.send(JSON.stringify({ event, member_id: memberId, time: new Date().toISOString() }));
-                    } else {
-                        document.getElementById('message').textContent = "開通失敗，請稍後再試。";
-                    }
-                })
-                .catch(error => console.error('Error activating coupon:', error));
-            } else {
-                // document.getElementById('claimForm').style.display = 'block';
-            }
+                        if (data.success) {
+                            console.log('helper with memberId success');
+                            // cell.textContent = "已開通";
+                            const event = 'helper';
+                            ws.send(JSON.stringify({ event, member_id: memberId, time: new Date().toISOString() }));
+                        } else {
+                            document.getElementById('message').textContent = "開通失敗，請稍後再試。";
+                        }
+                    })
+                    .catch(error => console.error('Error activating coupon:', error));
+                } else {
+                    // document.getElementById('claimForm').style.display = 'block';
+                }
+
+            })
+            .catch(error => {
+                console.error('Error fetching environment variables:', error);
+            });
+            
 
         }
 

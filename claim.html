@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script> <!-- 引入 QR code 庫 -->
 </head>
 <body>
-    <h1>領取餐券</h1>
+    <h1 id="title">領取餐券</h1>
 
     <div id="claimedMessage" style="display:none;">
         <p>您已經領取餐券！</p>
@@ -22,9 +22,37 @@
     </div>
 
     <div id="message"></div>
-    <button onclick="clearLocalStorage()">Clear LocalStorage</button>
+    <button id="clearButton" onclick="clearLocalStorage()" style="display:none;">Clear LocalStorage</button>
 
     <script>
+        // 設置點擊次數和長按計時器
+        let longPressTimeout;
+        const longPressDuration = 3000; // 長按持續時間（毫秒）
+
+        // 獲取標題元素
+        const title = document.getElementById('title');
+
+        // 監聽標題的點擊事件
+        title.addEventListener('dblclick', () => {
+            title.addEventListener('click', () => {
+                // 取消長按計時器
+                clearTimeout(longPressTimeout);
+
+                // 設置長按計時器
+                longPressTimeout = setTimeout(() => {
+                    showClearButton(); // 長按時顯示清除按鈕
+                }, longPressDuration);
+            });
+        });
+
+        // 監聽鼠標釋放事件
+        title.addEventListener('mouseup', () => {
+            clearTimeout(longPressTimeout);
+            title.removeEventListener('click');
+        });
+
+
+
         let idString;
         const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
 
@@ -45,51 +73,64 @@
             console.log('Connected to WebSocket server');
         };
 
+        let IDKey;
+        fetch('env.php')
+        .then(response => response.json())
+        .then(data => {
+            IDKey = data.idKey;
+            console.log(`IDKey: ${IDKey}`);
+            getClaimData(IDKey);
+        })
+        .catch(error => {
+            console.error('Error fetching environment variables:', error);
+        });
 
-        // 檢查 localStorage 是否已有加密資料
-        const encryptedId = localStorage.getItem('dcchurch2024christmas');
-        console.log(encryptedId);
+        function getClaimData(key) {
+                // 檢查 localStorage 是否已有加密資料
+            const encryptedId = localStorage.getItem(key);
+            console.log(encryptedId);
 
-        if (encryptedId) {
-            // generateKey().then(key => {
-            //     decryptData(key, storedData).then(decryptedData => {
-                    // console.log(decryptedData);
-                    // 取得解密後的ID並查詢資料庫
-            fetch('claim_info.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ encryptedId: encryptedId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(`data.success: ${data.success}`);
-                if (data.success) {
-                    idString = data.member_id.toString();
-                    const name = data.member;
-                    const count = data.amount / 200;
-                    const checkFlag = data.check_flag;
-                    document.getElementById('claimedMessage').style.display = 'block';
-                    console.log(`Name: ${data.member}, People: ${count}`);
-                    if (!checkFlag) {
-                        const qrContent = `http://34.80.165.113/christmas/helper.html?member_id=${idString}`;
-                        console.log(qrContent);
-                        QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
-                            if (error) console.error(error);
-                            console.log('QR code generated!');
-                        });
+            if (encryptedId) {
+                // generateKey().then(key => {
+                //     decryptData(key, storedData).then(decryptedData => {
+                        // console.log(decryptedData);
+                        // 取得解密後的ID並查詢資料庫
+                fetch('claim_info.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ encryptedId: encryptedId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`data.success: ${data.success}`);
+                    if (data.success) {
+                        idString = data.member_id.toString();
+                        const name = data.member;
+                        const count = data.amount / 200;
+                        const checkFlag = data.check_flag;
+                        document.getElementById('claimedMessage').style.display = 'block';
+                        console.log(`Name: ${data.member}, People: ${count}`);
+                        if (!checkFlag) {
+                            const qrContent = `http://34.80.165.113/christmas/helper.html?member_id=${idString}`;
+                            console.log(qrContent);
+                            QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
+                                if (error) console.error(error);
+                                console.log('QR code generated!');
+                            });
+                        }
+                        document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已開通完成' : '請至服務台完成開通' }。`;
+                    } else  {
+                        document.getElementById('message').textContent = "查無資料！";
                     }
-                    document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已開通完成' : '請至服務台完成開通' }。`;
-                } else  {
-                    document.getElementById('message').textContent = "查無資料！";
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                })
+                .catch(error => console.error('Error:', error));
+                    // });
                 // });
-            // });
-        } else {
-            document.getElementById('claimForm').style.display = 'block';
+            } else {
+                document.getElementById('claimForm').style.display = 'block';
+            }
         }
 
         // 領取餐券按鈕邏輯
@@ -118,7 +159,8 @@
                     console.log(`encryptedId: ${encryptedId}`);
                     // generateKey().then(key => {
                     //     encryptData(key, id).then(encryptedId => {
-                    localStorage.setItem('dcchurch2024christmas', encryptedId);
+                    console.log(`setItem: ${IDKey}`);
+                    localStorage.setItem(IDKey, encryptedId);
                     document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得 ${numberOfPeople} 張餐券，請至服務台完成開通。`;
                     // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
                     const qrContent = `http://34.80.165.113/christmas/helper.html?member_id=${idString}`;
@@ -141,8 +183,12 @@
         };
 
         function clearLocalStorage() {
-            localStorage.removeItem('dcchurch2024christmas');
-            alert('LocalStorage cleared for dcchurch2024christmas!');
+            localStorage.removeItem(IDKey);
+            alert(`LocalStorage cleared for ${IDKey}!`);
+        }
+
+        function showClearButton() {
+            document.getElementById('clearButton').style.display = 'block';
         }
     </script>
 </body>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>導覽頁面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            width: 90%; /* 設定按鈕寬度佔90% */
+            max-width: 500px; /* 可選：設置按鈕最大寬度 */
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>導覽頁面</h1>
+    <button onclick="window.location.href='http://34.80.165.113/christmas/claim.html'">領取餐券</button>
+    <button onclick="window.location.href='http://34.80.165.113/christmas/helper.html'">啟用餐券</button>
+    <button onclick="window.location.href='http://34.80.165.113/christmas/consume.html?store=小搞搞叭噗蛋餅'">小搞搞叭噗蛋餅</button>
+    <button onclick="window.location.href='http://34.80.165.113/christmas/records.html?store=小搞搞叭噗蛋餅&check_flag=true'">交易查詢</button>
+    <button onclick="window.location.href='http://34.80.165.113/christmas/records.html'">結算金額</button>
+
+</body>
+</html>

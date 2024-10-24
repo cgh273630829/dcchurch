@@ -25,7 +25,7 @@ if ($encryptedId) {
 
     if ($decrypted) {
         // 查詢該會員的所有交易並計算剩餘金額
-        $sql = "SELECT member, IFNULL(SUM(amount), 0) as balance FROM trade_records WHERE member_id = ? and check_flag = true";
+        $sql = "SELECT member, IFNULL(SUM(amount), 0) as balance FROM trade_records WHERE member_id = ? and check_flag = true GROUP BY member";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $decrypted);
         $stmt->execute();

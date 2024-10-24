@@ -126,11 +126,24 @@
         // const memberName = urlParams.get('member') || "未指定會員";
         // console.log(memberName);
         document.getElementById('store').value = storeName;
+        let encryptedId;
+        fetch('env.php')
+        .then(response => response.json())
+        .then(data => {
+            const IDKey = data.idKey;
+            console.log(`IDKey: ${IDKey}`);
+            encryptedId = localStorage.getItem(IDKey);
+            console.log(`encryptedId: ${encryptedId}`);
+            fetchBalance();
 
+        })
+        .catch(error => {
+            console.error('Error fetching environment variables:', error);
+        });
         // 檢查 localStorage 是否已有加密資料
-        const encryptedId = localStorage.getItem('dcchurch2024christmas');
-        console.log(`encryptedId: ${encryptedId}`);
-        fetchBalance();
+        // const encryptedId = localStorage.getItem('dcchurch2024christmas');
+        // console.log(`encryptedId: ${encryptedId}`);
+        // fetchBalance();
         // if (encryptedId) {
         //     fetchBalance(encryptedId);
         // } else {

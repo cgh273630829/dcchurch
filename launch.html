@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖誕市集</title>
+    <script src="check_line.js" defer></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            color: white;
+            background-color: #28a745; /* 綠色 */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #218838; /* 深綠色 */
+        }
+    </style>
+</head>
+<body>
+    <button onclick="openMarket()">聖誕市集</button>
+        <script>
+        
+        function openMarket() {
+            const url = 'http://34.80.165.113/christmas/claim.html'; // 替換為您想要打開的網址
+
+            // 檢查用戶代理是否為 LINE
+            // if (navigator.userAgent.includes('LINE')) {
+                // 使用 window.location.href 直接在外部瀏覽器中打開連結
+                window.location.href = url;
+                // alert(`line: ${window.location.href}`);
+                // window.location.href = `https://www.google.com/url?q=${encodeURIComponent(url)}`;
+            // } else {
+            //     alert(`not line: ${url}`);
+            //     // 在新視窗中打開網址
+            //     window.open(url, '_blank');
+            // }
+        }
+    </script>
+</body>
+</html>
