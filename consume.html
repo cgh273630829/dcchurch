@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>消費頁面</title>
     <link rel="stylesheet" href="consume.css">
+    <script src="check_line.js" defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,7 +17,10 @@
             margin: 0;
             background-color: #f9f9f9;
         }
+
         .container {
+            position: fixed;
+            top: 0; left: 0;right: 0;bottom: 0;
             text-align: center;
             border: 1px solid #ccc;
             padding: 20px;
@@ -23,18 +28,22 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             margin-bottom: 20px;
         }
+
         .calculator {
             margin-bottom: 20px;
         }
+
         .buttons button {
             width: 60px;
             height: 60px;
             font-size: 20px;
             margin: 5px;
         }
+
         input[type="text"] {
             width: 200px;
             padding: 10px;
@@ -42,6 +51,7 @@
             font-size: 18px;
             text-align: center;
         }
+
         button {
             padding: 10px 20px;
             font-size: 18px;
@@ -51,12 +61,28 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #45a049;
         }
     </style>
 </head>
+
 <body>
+
+    <!-- <h1>Concurrent Consume Test</h1>
+    <label for="requestCount">請求數量:</label>
+    <input type="number" id="requestCount" value="350" min="1">
+    <label for="remaining">剩餘金額:</label>
+    <input type="number" id="remaining" value="500">
+    <label for="amount">消費金額:</label>
+    <input type="number" id="amount" value="1">
+    <label for="store">商店名稱:</label>
+    <input type="text" id="store" value="TestStore">
+    <button id="startTestButton">Start Test</button>
+    <p id="result">Click "Start Test" to send requests</p>
+    <div id="message"></div> -->
+
     <div class="container">
         <h1>消費頁面</h1>
 
@@ -101,7 +127,7 @@
         let memberId;
         const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
 
-        ws.onmessage = function(event) {
+        ws.onmessage = function (event) {
             const data = JSON.parse(event.data);
             console.log('Received message from WebSocket:', data);
             if (data.event === 'records') {
@@ -113,7 +139,7 @@
             }
         };
 
-        ws.onopen = function() {
+        ws.onopen = function () {
             console.log('Connected to WebSocket server');
         };
 
@@ -128,18 +154,18 @@
         document.getElementById('store').value = storeName;
         let encryptedId;
         fetch('env.php')
-        .then(response => response.json())
-        .then(data => {
-            const IDKey = data.idKey;
-            console.log(`IDKey: ${IDKey}`);
-            encryptedId = localStorage.getItem(IDKey);
-            console.log(`encryptedId: ${encryptedId}`);
-            fetchBalance();
+            .then(response => response.json())
+            .then(data => {
+                const IDKey = data.idKey;
+                console.log(`IDKey: ${IDKey}`);
+                encryptedId = localStorage.getItem(IDKey);
+                console.log(`encryptedId: ${encryptedId}`);
+                fetchBalance();
 
-        })
-        .catch(error => {
-            console.error('Error fetching environment variables:', error);
-        });
+            })
+            .catch(error => {
+                console.error('Error fetching environment variables:', error);
+            });
         // 檢查 localStorage 是否已有加密資料
         // const encryptedId = localStorage.getItem('dcchurch2024christmas');
         // console.log(`encryptedId: ${encryptedId}`);
@@ -149,7 +175,7 @@
         // } else {
         //     // document.getElementById('claimForm').style.display = 'block';
         // }
-        
+
 
         // // 查詢會員剩餘金額
         function fetchBalance() {
@@ -161,21 +187,21 @@
                     },
                     body: JSON.stringify({ encryptedId: encryptedId })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.balance !== undefined) {
-                        memberId = data.member_id;
-                        memberName = data.member;
-                        document.getElementById('remaining').value = data.balance;
-                    } else {
-                        document.getElementById('message').textContent = "無法查詢剩餘金額。";
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.balance !== undefined) {
+                            memberId = data.member_id;
+                            memberName = data.member;
+                            document.getElementById('remaining').value = data.balance;
+                        } else {
+                            document.getElementById('message').textContent = "無法查詢剩餘金額。";
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
             }
         }
 
-        
+
 
         // 計算機功能
         function appendNumber(num) {
@@ -188,13 +214,13 @@
         }
 
         // 消費按鈕功能
-        document.getElementById('consumeButton').onclick = function() {
+        document.getElementById('consumeButton').onclick = function () {
             const remaining = document.getElementById('remaining').value;
             const amount = document.getElementById('amount').value;
             const store = document.getElementById('store').value;
             console.log(`remaining: ${remaining}, amount: ${amount}`);
 
-            if (Number(remaining)<=0 || Number(remaining) < Number(amount)) {
+            if (Number(remaining) <= 0 || Number(remaining) < Number(amount)) {
                 alert("剩餘金額不足");
                 clearAmount();
                 return;
@@ -214,31 +240,99 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     encryptedId: encryptedId,
                     member: memberName,
-                    store: store, 
-                    amount: negativeAmount, 
-                    check_flag: true 
+                    store: store,
+                    amount: negativeAmount,
+                    check_flag: true
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                const messageDiv = document.getElementById('message');
-                if (data.success) {
-                    messageDiv.textContent = "成功完成消費！";
-                    // 更新剩餘金額
-                    fetchBalance();
-                    clearAmount();
-                    // 當消費成功後，發送 WebSocket 通知
-                    const event = 'consume';
-                    ws.send(JSON.stringify({ event, store: store, time: new Date().toISOString() }));
-                } else {
-                    messageDiv.textContent = "消費失敗！請稍後再試。";
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                .then(response => response.json())
+                .then(data => {
+                    const messageDiv = document.getElementById('message');
+                    if (data.success) {
+                        messageDiv.textContent = "成功完成消費！";
+                        // 更新剩餘金額
+                        fetchBalance();
+                        clearAmount();
+                        // 當消費成功後，發送 WebSocket 通知
+                        const event = 'consume';
+                        ws.send(JSON.stringify({ event, store: store, time: new Date().toISOString() }));
+                        alert(`消費成功！\n姓名: ${memberName}\n店家: ${store}\n金額: ${amount}`);
+                    } else {
+                        messageDiv.textContent = "消費失敗！請稍後再試。";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         };
+
+
+        // const url = 'consume.php';
+
+        // // 定義用於模擬請求的數據
+        
+
+        // // 用於計數成功和失敗的請求次數
+        // let successCount = 0;
+        // let failureCount = 0;
+
+        // // 發送請求的函式，回傳 Promise
+        // function sendTestRequest() {
+        //     const testData = {
+        //         encryptedId: encryptedId,
+        //         member: 'TestUser',
+        //         store: 'TestStore',
+        //         amount: -1, // 消費金額為負數
+        //         check_flag: true
+        //     };
+        //     return fetch(url, {
+        //         method: 'POST',
+        //         headers: { 'Content-Type': 'application/json' },
+        //         body: JSON.stringify(testData)
+        //     })
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             if (data.success) {
+        //                 successCount++;
+        //             } else {
+        //                 failureCount++;
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error:', error);
+        //             failureCount++;
+        //         });
+        // }
+
+        // // 同時發送所有請求
+        // function startConcurrentTest() {
+        //     const numberOfRequests = Number(document.getElementById('requestCount').value); // 讀取請求數量
+        //     console.log(`Starting concurrent test with ${numberOfRequests} requests...`);
+        //     successCount = 0;
+        //     failureCount = 0;
+
+        //     const requests = Array.from({ length: numberOfRequests }, () => sendTestRequest());
+
+        //     // 使用 Promise.all 等待所有請求完成
+        //     Promise.all(requests)
+        //         .then(() => {
+        //             console.log(`Test completed. Success: ${successCount}, Failures: ${failureCount}`);
+        //             document.getElementById('result').textContent =
+        //                 `Test completed. Success: ${successCount}, Failures: ${failureCount}`;
+        //         })
+        //         .catch(error => {
+        //             console.error('Error with concurrent requests:', error);
+        //             document.getElementById('result').textContent =
+        //                 `Error with concurrent requests: ${error}`;
+        //         });
+        // }
+
+        // // 監聽按鈕點擊事件來啟動測試
+        // document.getElementById('startTestButton').addEventListener('click', startConcurrentTest);
+
+
     </script>
 </body>
+
 </html>

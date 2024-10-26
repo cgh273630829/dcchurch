@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concurrent Consume Test</title>
+</head>
+<body>
+    <h1>Concurrent Consume Test</h1>
+    <label for="requestCount">請求數量:</label>
+    <input type="number" id="requestCount" value="350" min="1">
+    <label for="remaining">剩餘金額:</label>
+    <input type="number" id="remaining" value="500">
+    <label for="amount">消費金額:</label>
+    <input type="number" id="amount" value="100">
+    <label for="store">商店名稱:</label>
+    <input type="text" id="store" value="TestStore">
+    <button id="startTestButton">Start Test</button>
+    <p id="result">Click "Start Test" to send requests</p>
+    <div id="message"></div>
+
+    <script>
+        // const numberOfRequests = 100; // 請求的數量
+        const url = 'consume.php';
+
+        // 定義用於模擬請求的數據
+        const testData = {
+            encryptedId: 'sampleEncryptedId',
+            member: 'TestUser',
+            store: 'TestStore',
+            amount: -100, // 消費金額為負數
+            check_flag: true
+        };
+
+        // 用於計數成功和失敗的請求次數
+        let successCount = 0;
+        let failureCount = 0;
+
+        // 發送請求的函式，回傳 Promise
+        function sendTestRequest() {
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(testData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    successCount++;
+                } else {
+                    failureCount++;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                failureCount++;
+            });
+        }
+
+        // 同時發送所有請求
+        function startConcurrentTest() {
+            const numberOfRequests = Number(document.getElementById('requestCount').value); // 讀取請求數量
+            console.log(`Starting concurrent test with ${numberOfRequests} requests...`);
+            successCount = 0;
+            failureCount = 0;
+
+            const requests = Array.from({ length: numberOfRequests }, () => sendTestRequest());
+
+            // 使用 Promise.all 等待所有請求完成
+            Promise.all(requests)
+                .then(() => {
+                    console.log(`Test completed. Success: ${successCount}, Failures: ${failureCount}`);
+                    document.getElementById('result').textContent = 
+                        `Test completed. Success: ${successCount}, Failures: ${failureCount}`;
+                })
+                .catch(error => {
+                    console.error('Error with concurrent requests:', error);
+                    document.getElementById('result').textContent = 
+                        `Error with concurrent requests: ${error}`;
+                });
+        }
+
+        // 監聽按鈕點擊事件來啟動測試
+        document.getElementById('startTestButton').addEventListener('click', startConcurrentTest);
+    </script>
+</body>
+</html>

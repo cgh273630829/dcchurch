@@ -6,6 +6,7 @@
     <title>領取餐券</title>
     <link rel="stylesheet" href="claim.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script> <!-- 引入 QR code 庫 -->
+    <script src="check_line.js" defer></script>
 </head>
 <body>
     <h1 id="title">領取餐券</h1>
@@ -17,7 +18,22 @@
 
     <div id="claimForm" style="display:none;">
         <input type="text" id="memberName" placeholder="輸入會員名稱" required>
-        <input type="number" id="numberOfPeople" placeholder="輸入人數" min="1" value="1" required>
+        <!-- <input type="number" id="numberOfPeople" placeholder="輸入人數" min="1" value="1" required> -->
+
+        <select id="numberOfPeople" required>
+            <!-- 產生 1 到 10 的選項 -->
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+
         <button id="claimButton">領取餐券</button>
     </div>
 
@@ -25,6 +41,11 @@
     <button id="clearButton" onclick="clearLocalStorage()" style="display:none;">Clear LocalStorage</button>
 
     <script>
+        // 從 URL 中讀取參數
+        const urlParams = new URLSearchParams(window.location.search);
+        let memberName = urlParams.get('member') || "聖誕小夥伴";
+        document.getElementById('memberName').value = memberName;
+
         // 設置點擊次數和長按計時器
         let longPressTimeout;
         const longPressDuration = 3000; // 長按持續時間（毫秒）
@@ -110,9 +131,10 @@
                         const name = data.member;
                         const count = data.amount / 200;
                         const checkFlag = data.check_flag;
-                        document.getElementById('claimedMessage').style.display = 'block';
+                        // document.getElementById('claimedMessage').style.display = 'block';
                         console.log(`Name: ${data.member}, People: ${count}`);
                         if (!checkFlag) {
+                            document.getElementById('claimedMessage').style.display = 'block';
                             const qrContent = `http://34.80.165.113/christmas/helper.html?member_id=${idString}`;
                             console.log(qrContent);
                             QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
@@ -120,7 +142,7 @@
                                 console.log('QR code generated!');
                             });
                         }
-                        document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已開通完成' : '請至服務台完成開通' }。`;
+                        document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已啟用完成' : '請至服務台完成啟用' }。`;
                     } else  {
                         document.getElementById('message').textContent = "查無資料！";
                     }
@@ -135,7 +157,7 @@
 
         // 領取餐券按鈕邏輯
         document.getElementById('claimButton').onclick = function() {
-            const memberName = document.getElementById('memberName').value;
+            memberName = document.getElementById('memberName').value;
             const numberOfPeople = document.getElementById('numberOfPeople').value;
 
             if (memberName.trim() === "" || numberOfPeople < 1) {
@@ -161,7 +183,7 @@
                     //     encryptData(key, id).then(encryptedId => {
                     console.log(`setItem: ${IDKey}`);
                     localStorage.setItem(IDKey, encryptedId);
-                    document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得 ${numberOfPeople} 張餐券，請至服務台完成開通。`;
+                    document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得 ${numberOfPeople} 張餐券，請至服務台完成啟用。`;
                     // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
                     const qrContent = `http://34.80.165.113/christmas/helper.html?member_id=${idString}`;
                     QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {

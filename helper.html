@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="helper.css">
 </head>
 <body>
-    <h1>查詢已領取的 Helper 餐券</h1>
+    <h1>查詢已領取的餐券</h1>
     <table id="couponsTable">
         <thead>
             <tr>
@@ -26,112 +26,112 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const memberId = urlParams.get('member_id') || "未指定會員";
+        const memberId = urlParams.get('member_id');
         console.log(`memberId: ${memberId}`);
 
         // let idString;
         const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
         // if (!memberId) {
-            ws.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                console.log('Received message from WebSocket:', data);
-                if (data.event === 'claim' || data.event === 'helper') {
-                    // 假設這裡根據店家名稱刷新紀錄
-                    location.reload();
-                    
-                }
-            };
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log('Received message from WebSocket:', data);
+            if (data.event === 'claim' || data.event === 'helper') {
+                // 假設這裡根據店家名稱刷新紀錄
+                location.reload();
+
+            }
+        };
         // }
 
-        ws.onopen = function() {
+        ws.onopen = function () {
             console.log('Connected to WebSocket server');
         };
 
         // Fetch data from PHP to populate the table
         fetch('helper.php')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.querySelector("#couponsTable tbody");
-            data.forEach(coupon => {
-                const row = document.createElement("tr");
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector("#couponsTable tbody");
+                data.forEach(coupon => {
+                    const row = document.createElement("tr");
 
-                const idCell = document.createElement("td");
-                idCell.textContent = coupon.member_id.toString();
-                row.appendChild(idCell);
+                    const idCell = document.createElement("td");
+                    idCell.textContent = coupon.member_id.toString();
+                    row.appendChild(idCell);
 
-                const nameCell = document.createElement("td");
-                nameCell.textContent = coupon.member;
-                row.appendChild(nameCell);
+                    const nameCell = document.createElement("td");
+                    nameCell.textContent = coupon.member;
+                    row.appendChild(nameCell);
 
-                const amountCell = document.createElement("td");
-                amountCell.textContent = coupon.amount;
-                row.appendChild(amountCell);
+                    const amountCell = document.createElement("td");
+                    amountCell.textContent = coupon.amount;
+                    row.appendChild(amountCell);
 
-                const timeCell = document.createElement("td");
-                timeCell.textContent = coupon.trade_time;
-                row.appendChild(timeCell);
+                    const timeCell = document.createElement("td");
+                    timeCell.textContent = coupon.trade_time;
+                    row.appendChild(timeCell);
 
-                const statusCell = document.createElement("td");
-                if (coupon.check_flag == 0) {
-                    const button = document.createElement("button");
-                    button.textContent = "開通";
-                    button.onclick = function() {
-                        console.log(coupon.member_id);
-                        activateCoupon(coupon.member_id, statusCell);
-                    };
-                    statusCell.appendChild(button);
-                } else {
-                    statusCell.textContent = "已開通";
-                }
-                row.appendChild(statusCell);
+                    const statusCell = document.createElement("td");
+                    if (coupon.check_flag == 0) {
+                        const button = document.createElement("button");
+                        button.textContent = "啟用";
+                        button.onclick = function () {
+                            console.log(coupon.member_id);
+                            activateCoupon(coupon.member_id, statusCell);
+                        };
+                        statusCell.appendChild(button);
+                    } else {
+                        statusCell.textContent = "已啟用";
+                    }
+                    row.appendChild(statusCell);
 
-                tableBody.appendChild(row);
-            });
-        })
-        .catch(error => console.error('Error fetching data:', error));
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
 
         // 從 URL 中讀取參數
         if (memberId) {
             fetch('env.php')
-            .then(response => response.json())
-            .then(data => {
-                const IDKey = data.idKey;
-                console.log(`IDKey: ${IDKey}`);
+                .then(response => response.json())
+                .then(data => {
+                    const IDKey = data.idKey;
+                    console.log(`IDKey: ${IDKey}`);
 
-                const encryptedId = localStorage.getItem(IDKey);
-                console.log(encryptedId);
-
-                if (encryptedId) {
+                    const encryptedId = localStorage.getItem(IDKey);
                     console.log(encryptedId);
-                    fetch('scan_coupon.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ encryptedId: encryptedId, memberId: memberId})
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('helper with memberId success');
-                        if (data.success) {
-                            console.log('helper with memberId success');
-                            // cell.textContent = "已開通";
-                            const event = 'helper';
-                            ws.send(JSON.stringify({ event, member_id: memberId, time: new Date().toISOString() }));
-                        } else {
-                            document.getElementById('message').textContent = "開通失敗，請稍後再試。";
-                        }
-                    })
-                    .catch(error => console.error('Error activating coupon:', error));
-                } else {
-                    // document.getElementById('claimForm').style.display = 'block';
-                }
 
-            })
-            .catch(error => {
-                console.error('Error fetching environment variables:', error);
-            });
-            
+                    if (encryptedId) {
+                        console.log(encryptedId);
+                        fetch('scan_coupon.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ encryptedId: encryptedId, memberId: memberId })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('helper with memberId success');
+                                if (data.success) {
+                                    console.log('helper with memberId success');
+                                    // cell.textContent = "已啟用";
+                                    const event = 'helper';
+                                    ws.send(JSON.stringify({ event, member_id: memberId, time: new Date().toISOString() }));
+                                } else {
+                                    document.getElementById('message').textContent = "啟用失敗，請稍後再試。";
+                                }
+                            })
+                            .catch(error => console.error('Error activating coupon:', error));
+                    } else {
+                        // document.getElementById('claimForm').style.display = 'block';
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Error fetching environment variables:', error);
+                });
+
 
         }
 
@@ -147,19 +147,21 @@
                 },
                 body: JSON.stringify({ id: id })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('success');
-                    cell.textContent = "已開通";
-                    const event = 'helper';
-                    ws.send(JSON.stringify({ event, member_id: id, time: new Date().toISOString() }));
-                } else {
-                    document.getElementById('message').textContent = "開通失敗，請稍後再試。";
-                }
-            })
-            .catch(error => console.error('Error activating coupon:', error));
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('success');
+                        cell.textContent = "已啟用";
+                        const event = 'helper';
+                        ws.send(JSON.stringify({ event, member_id: id, time: new Date().toISOString() }));
+                    } else {
+                        document.getElementById('message').textContent = "啟用失敗，請稍後再試。";
+                    }
+                })
+                .catch(error => console.error('Error activating coupon:', error));
         }
+
     </script>
 </body>
+
 </html>

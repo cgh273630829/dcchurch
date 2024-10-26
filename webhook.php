@@ -17,7 +17,7 @@ foreach ($events as $event) {
         $message = $event['message']['text'];
 
         // 根據收到的消息給予不同的回應
-        $responseMessage = handleIncomingMessage($message, $userId);
+        $responseMessage = handleIncomingMessage($message, $userId, $accessToken);
         
         // 回覆消息
         replyMessage($replyToken, $responseMessage, $accessToken);
@@ -25,15 +25,18 @@ foreach ($events as $event) {
 }
 
 // 根據不同消息內容給予特定回應的函數
-function handleIncomingMessage($message, $userId) {
+function handleIncomingMessage($message, $userId, $accessToken) {
+    // 取得使用者名稱
+    $userName = getUserName($userId, $accessToken);
+    $encodedUserName = urlencode($userName); // 使用 URL 編碼
     $lowerMessage = strtolower(trim($message)); // 將消息轉為小寫以便於比較
     
     // 根據消息內容返回不同的回應
     switch ($lowerMessage) {
-        case 'cgh1':
-            return createButtonMessage("領取餐券", "http://34.80.165.113/christmas/claim.html");
-        case 'cgh2':
-            return createButtonMessage("市集導覽", "http://34.80.165.113/christmas/dashboard.html");
+        case '餐券':
+            return createButtonMessage("領取餐券", "http://34.80.165.113/christmas/claim.html?member=$encodedUserName");
+        case 'cgh':
+            return "Hi! $userName";
     }
 }
 
@@ -55,6 +58,27 @@ function createButtonMessage($text, $link) {
             ],
         ],
     ];
+}
+
+// 取得使用者名稱的函數
+function getUserName($userId, $accessToken) {
+    $url = "https://api.line.me/v2/bot/profile/$userId";
+    $options = [
+        'http' => [
+            'header' => "Authorization: Bearer $accessToken\r\n",
+            'method' => 'GET'
+        ]
+    ];
+    $context = stream_context_create($options);
+    $response = file_get_contents($url, false, $context);
+    
+    if ($response === FALSE) {
+        error_log("Error fetching user profile.");
+        return "使用者";
+    }
+
+    $profile = json_decode($response, true);
+    return $profile['displayName'] ?? "使用者";
 }
 
 // 回覆消息的函數

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concurrent Request Test</title>
+</head>
+
+<body>
+    <h1>Concurrent Request Test</h1>
+    <label for="requestCount">請求數量:</label>
+    <input type="number" id="requestCount" value="350" min="1">
+    <button id="startTestButton">Start Test</button>
+    <p id="result">Click "Start Test" to send requests</p>
+
+    <script>
+        // const numberOfRequests = 350; // 請求的數量
+        const url = 'claim.php';
+
+        // 定義用於模擬請求的數據
+        const testData = {
+            memberName: 'TestUser',
+            numberOfPeople: 2
+        };
+
+        // 用於計數成功和失敗的請求次數
+        let successCount = 0;
+        let failureCount = 0;
+
+        // 發送請求的函式，回傳 Promise
+        function sendTestRequest() {
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(testData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        successCount++;
+                    } else {
+                        failureCount++;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    failureCount++;
+                });
+        }
+
+        function startStressTest() {
+            
+            const numberOfRequests = Number(document.getElementById('requestCount').value); // 讀取請求數量
+            console.log(`Starting stress test with ${numberOfRequests} requests...`);
+            const delayBetweenRequests = 500;
+            for (let i = 0; i < numberOfRequests; i++) {
+                setTimeout(() => {
+                    sendTestRequest();
+                    console.log(`Request ${i + 1} sent`);
+                }, delayBetweenRequests); // 每次請求延遲一定時間發送
+            }
+
+            // 檢查完成狀態
+            setTimeout(() => {
+                console.log(`Stress test completed. Success: ${successCount}, Failures: ${failureCount}`);
+            }, numberOfRequests * delayBetweenRequests + 1000); // 等待所有請求完成後再顯示結果
+        }
+
+
+        // 同時發送所有請求
+        function startConcurrentTest() {
+            const numberOfRequests = Number(document.getElementById('requestCount').value); // 讀取請求數量
+            console.log(`Starting concurrent test with ${numberOfRequests} requests...`);
+            successCount = 0;
+            failureCount = 0;
+
+            const requests = Array.from({ length: numberOfRequests }, () => sendTestRequest());
+
+            // 使用 Promise.all 等待所有請求完成
+            Promise.all(requests)
+                .then(() => {
+                    console.log(`Test completed. Success: ${successCount}, Failures: ${failureCount}`);
+                    document.getElementById('result').textContent =
+                        `Test completed. Success: ${successCount}, Failures: ${failureCount}`;
+                })
+                .catch(error => {
+                    console.error('Error with concurrent requests:', error);
+                    document.getElementById('result').textContent =
+                        `Error with concurrent requests: ${error}`;
+                });
+        }
+
+        // 監聽按鈕點擊事件來啟動測試
+        document.getElementById('startTestButton').addEventListener('click', startStressTest);
+    </script>
+</body>
+
+</html>
