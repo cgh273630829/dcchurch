@@ -3,11 +3,34 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>消費頁面</title>
     <link rel="stylesheet" href="consume.css">
-    <script src="check_line.js" defer></script>
+    <!-- <script src="check_line.js" defer></script> -->
+    <script>
+        document.addEventListener('touchstart', function (e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();  // 禁止多點觸控
+            }
+        }, { passive: false });
+        document.addEventListener('gesturestart', function (e) {
+          e.preventDefault();
+        });
+      
+        document.addEventListener('gesturechange', function (e) {
+          e.preventDefault();
+        });
+      
+        document.addEventListener('gestureend', function (e) {
+          e.preventDefault();
+        });
+
+    </script>
     <style>
+        html, body {
+            touch-action: none;
+            overflow: hidden; 
+        }
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -19,14 +42,16 @@
         }
 
         .container {
-            position: fixed;
-            top: 0; left: 0;right: 0;bottom: 0;
+            /* position: fixed; */
+            /* top: 5px; left: 5px;right: 5px;bottom: 5px; */
             text-align: center;
             border: 1px solid #ccc;
-            padding: 20px;
+            /* padding: 30px; */
+            /* margin-bottom: 50px; */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            touch-action: none;
         }
 
         h1 {
@@ -42,6 +67,7 @@
             height: 60px;
             font-size: 20px;
             margin: 5px;
+            touch-action: manipulation;
         }
 
         input[type="text"] {
@@ -125,7 +151,7 @@
 
     <script>
         let memberId;
-        const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
+        const ws = new WebSocket('wss://www.wjtolive.com:8080');  // 連接 PHP WebSocket 伺服器
 
         ws.onmessage = function (event) {
             const data = JSON.parse(event.data);
@@ -206,7 +232,13 @@
         // 計算機功能
         function appendNumber(num) {
             const amountInput = document.getElementById("amount");
-            amountInput.value = amountInput.value + num;
+            if (amountInput.value === "0") {
+                if (num !== 0) {
+                    amountInput.value = num.toString();
+                }
+            } else {
+                amountInput.value = amountInput.value + num;
+            }
         }
 
         function clearAmount() {

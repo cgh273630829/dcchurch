@@ -56,13 +56,16 @@
     const urlParams = new URLSearchParams(window.location.search);
     const storeName = urlParams.get('store');
     const checkFlag = urlParams.get('check_flag');
+    let helper = false;
     console.log(`storeName: ${storeName}, checkFlag: ${checkFlag}`);
     if (storeName && checkFlag) {
       getRecords(storeName, checkFlag);
+      helper = false;
       // document.getElementById("recordSelect").style = 
     } else if (!urlParams.toString()) {
       document.getElementById('title').textContent = '金額結算';
       document.getElementById('recordSelect').style.display = 'block';
+      helper = true;
     }
 
     document.getElementById("fetchDataBtn").onclick = function () {
@@ -72,7 +75,7 @@
     };
 
 
-    const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
+    const ws = new WebSocket('wss://www.wjtolive.com:8080');  // 連接 PHP WebSocket 伺服器
 
     ws.onmessage = function (event) {
       const data = JSON.parse(event.data);
@@ -173,8 +176,9 @@
                 cancelButton.style.display = 'none'; // Hide cancel button
               }
             };
-
-            card.appendChild(cancelButton);
+            if (helper == false) {
+              card.appendChild(cancelButton);
+            }
 
             // Append the card to the container
             container.appendChild(card);

@@ -6,7 +6,7 @@
     <title>領取餐券</title>
     <link rel="stylesheet" href="claim.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script> <!-- 引入 QR code 庫 -->
-    <script src="check_line.js" defer></script>
+    <!-- <script src="check_line.js" defer></script> -->
 </head>
 <body>
     <h1 id="title">領取餐券</h1>
@@ -75,9 +75,10 @@
 
 
         let idString;
-        const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
+        const ws = new WebSocket('wss://www.wjtolive.com:8080');  // 連接 PHP WebSocket 伺服器
 
         ws.onmessage = function(event) {
+            console.log(`event: ${JSON.stringify(event, null, 2)}`);
             const data = JSON.parse(event.data);
             console.log('Received message from WebSocket:', data);
             if (data.event === 'helper') {
@@ -135,7 +136,7 @@
                         console.log(`Name: ${data.member}, People: ${count}`);
                         if (!checkFlag) {
                             document.getElementById('claimedMessage').style.display = 'block';
-                            const qrContent = `http://34.80.165.113/christmas/helper.html?member_id=${idString}`;
+                            const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
                             console.log(qrContent);
                             QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
                                 if (error) console.error(error);
@@ -185,7 +186,7 @@
                     localStorage.setItem(IDKey, encryptedId);
                     document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得 ${numberOfPeople} 張餐券，請至服務台完成啟用。`;
                     // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
-                    const qrContent = `http://34.80.165.113/christmas/helper.html?member_id=${idString}`;
+                    const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
                     QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
                         if (error) console.error(error);
                         console.log('QR code generated!');

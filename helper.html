@@ -30,9 +30,10 @@
         console.log(`memberId: ${memberId}`);
 
         // let idString;
-        const ws = new WebSocket('ws://34.80.165.113:8080');  // 連接 PHP WebSocket 伺服器
+        const ws = new WebSocket('wss://www.wjtolive.com:8080');  // 連接 PHP WebSocket 伺服器
         // if (!memberId) {
         ws.onmessage = function (event) {
+            console.log(`event: ${JSON.stringify(event, null, 2)}`);
             const data = JSON.parse(event.data);
             console.log('Received message from WebSocket:', data);
             if (data.event === 'claim' || data.event === 'helper') {
@@ -149,6 +150,7 @@
             })
                 .then(response => response.json())
                 .then(data => {
+                    console.log(`data: ${JSON.stringify(data, null, 2)}`);
                     if (data.success) {
                         console.log('success');
                         cell.textContent = "已啟用";
