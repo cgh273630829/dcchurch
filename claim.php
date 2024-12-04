@@ -22,47 +22,54 @@ if ($conn->connect_error) {
 $data = json_decode(file_get_contents("php://input"), true);
 $memberName = $data['memberName'];
 $numberOfPeople = $data['numberOfPeople'];
-$logger->write("memberName: $memberName, numberOfPeople: $numberOfPeople");
+$userid = $data['userid'];
+$logger->write("memberName: $memberName, numberOfPeople: $numberOfPeople, userid: $userid");
 // 取得當前時間
 $currentDateTime = date('Y-m-d H:i:s');
 
 // 計算金額
 $amount = 200 * $numberOfPeople;
-
-// 插入資料
-$sql = "INSERT INTO trade_records (member, store, amount, create_time, check_flag) VALUES (?, 'Helper', ?, ?, false)";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("sis", $memberName, $amount, $currentDateTime);
+$id = 0;
+$stmt = $conn->prepare("SELECT 
+                            id 
+                        FROM members
+                        WHERE user_id = ?");
+$stmt->bind_param("s", $userid);
 $stmt->execute();
+$result = $stmt->get_result();
 
-if ($stmt->affected_rows > 0) {
-    $id = $stmt->insert_id;
-    $logger->write("id: $id");
-    // 將 ID 轉換為 5 位數的字串，前面補上 0
-    $id_padded = str_pad($id, 5, '0', STR_PAD_LEFT);
-    $logger->write("id_padded: '$id_padded'");
-    $key = generateKey();
-    $encrypted = encryptData($key, $id_padded);
-    $logger->write("encrypted: $encrypted");
-
-    // 更新 member_id 欄位
-    $update_sql = "UPDATE trade_records SET member_id = ? WHERE id = ?";
-    $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("si", $id_padded, $id);
-    $update_stmt->execute();
-    
-    // 檢查更新是否成功
-    if ($update_stmt->affected_rows > 0) {
-        $logger->write("member_id updated successfully");
-        echo json_encode(['success' => true, 'memberId' => $id_padded,'encrypted' => $encrypted]);
+if ($row = $result->fetch_assoc()) {
+    $id = $row['id'] ;
+} else {
+    $sql = "INSERT INTO members (name, user_id) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $memberName, $userid);
+    $stmt->execute();
+    if ($stmt->affected_rows > 0) {
+        $id = $stmt->insert_id;
     } else {
-        $logger->write("Failed to update member_id");
         echo json_encode(["success" => false, "message" => "插入失敗: " . $stmt->error]);
     }
-    $update_stmt->close();
-    // echo json_encode(['success' => true, 'id' => $id,'encrypted' => $encrypted]);
+}
+if ($id != 0) {
+    $id_padded = str_pad($id, 5, '0', STR_PAD_LEFT);
+    // 寫入領券資料
+    $sql = "INSERT INTO trade_records (member_id, amount, create_time) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iis", $id, $amount, $currentDateTime);
+    $stmt->execute();
+
+    if ($stmt->affected_rows > 0) {
+        $key = generateKey();
+        $encrypted = encryptData($key, $userid);
+        $logger->write("encrypted: $encrypted");
+    
+        echo json_encode(['success' => true, 'memberId' => $id_padded,'encrypted' => $encrypted]);
+    } else {
+        echo json_encode(["success" => false, "message" => "插入失敗: " . $stmt->error]);
+    }
 } else {
-    echo json_encode(["success" => false, "message" => "插入失敗: " . $stmt->error]);
+    echo json_encode(["success" => false, "message" => "作業失敗: " . $stmt->error]);
 }
 
 // 關閉連接
@@ -120,7 +127,5 @@ function encryptData($key, $data) {
 
 //     return $decrypted; // 返回明文
 // }
-
-
 
 ?>

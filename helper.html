@@ -55,13 +55,13 @@
                 const tableBody = document.querySelector("#couponsTable tbody");
                 data.forEach(coupon => {
                     const row = document.createElement("tr");
-
+                    // SELECT tr.member_id, m.name, tr.amount, tr.trade_time, tr.check_flag 
                     const idCell = document.createElement("td");
                     idCell.textContent = coupon.member_id.toString();
                     row.appendChild(idCell);
 
                     const nameCell = document.createElement("td");
-                    nameCell.textContent = coupon.member;
+                    nameCell.textContent = coupon.name;
                     row.appendChild(nameCell);
 
                     const amountCell = document.createElement("td");
@@ -139,6 +139,7 @@
 
         // Function to activate the coupon
         function activateCoupon(id, cell) {
+            id_padded = id.toString().padStart(5, '0');
             console.log(id);
             console.log(cell);
             fetch('activate_coupon.php', {
@@ -155,7 +156,7 @@
                         console.log('success');
                         cell.textContent = "已啟用";
                         const event = 'helper';
-                        ws.send(JSON.stringify({ event, member_id: id, time: new Date().toISOString() }));
+                        ws.send(JSON.stringify({ event, member_id: id_padded, time: new Date().toISOString() }));
                     } else {
                         document.getElementById('message').textContent = "啟用失敗，請稍後再試。";
                     }

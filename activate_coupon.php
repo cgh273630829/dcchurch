@@ -25,11 +25,11 @@ if (isset($data['id'])) {
     $id = $data['id'];
     $logger->write("id: $id");
     // 更新資料庫，將對應 id 的 check_flag 改為 true
-    $sql = "UPDATE trade_records SET check_flag = 1 WHERE member_id = ? and store = 'Helper'";
+    $sql = "UPDATE trade_records SET check_flag = 1 WHERE member_id = ? and store_id = 1";
 
     // 預備及綁定參數
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $id);
+    $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
         $logger->write("stmt->execute()");

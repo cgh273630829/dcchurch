@@ -16,7 +16,11 @@ if ($conn->connect_error) {
 }
 
 // 查詢 store 為 Helper 的所有餐券記錄
-$sql = "SELECT member_id, member, amount, trade_time, check_flag FROM trade_records WHERE store = 'Helper' ORDER BY trade_time DESC";
+$sql = "SELECT tr.member_id, m.name, tr.amount, tr.trade_time, tr.check_flag 
+        FROM trade_records tr 
+        JOIN members m 
+        ON tr.member_id = m.id  
+        WHERE tr.store_id = 1 ORDER BY trade_time DESC";
 $result = $conn->query($sql);
 
 $coupons = [];

@@ -44,6 +44,8 @@
         // 從 URL 中讀取參數
         const urlParams = new URLSearchParams(window.location.search);
         let memberName = urlParams.get('member') || "聖誕小夥伴";
+        let userid = urlParams.get('userid') || "";
+        
         document.getElementById('memberName').value = memberName;
 
         // 設置點擊次數和長按計時器
@@ -96,6 +98,7 @@
         };
 
         let IDKey;
+        // 取得key以讀取local storage
         fetch('env.php')
         .then(response => response.json())
         .then(data => {
@@ -117,6 +120,7 @@
                 //     decryptData(key, storedData).then(decryptedData => {
                         // console.log(decryptedData);
                         // 取得解密後的ID並查詢資料庫
+                // 取得餐券領取資訊
                 fetch('claim_info.php', {
                     method: 'POST',
                     headers: {
@@ -128,7 +132,7 @@
                 .then(data => {
                     console.log(`data.success: ${data.success}`);
                     if (data.success) {
-                        idString = data.member_id.toString();
+                        idString = data.member_id.toString().padStart(5, '0');
                         const name = data.member;
                         const count = data.amount / 200;
                         const checkFlag = data.check_flag;
@@ -166,31 +170,34 @@
                 return;
             }
 
+            // 領取餐券並建立user資料
             fetch('claim.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ memberName: memberName, numberOfPeople: numberOfPeople })
+                body: JSON.stringify({ memberName: memberName, 
+                                       numberOfPeople: numberOfPeople,
+                                       userid: userid })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     // let id = data.id.toString();
-                    idString = data.memberId.toString();
+                    idString = data.memberId.toString().padStart(5, '0');
                     let encryptedId = data.encrypted.toString();
                     console.log(`encryptedId: ${encryptedId}`);
                     // generateKey().then(key => {
                     //     encryptData(key, id).then(encryptedId => {
                     console.log(`setItem: ${IDKey}`);
                     localStorage.setItem(IDKey, encryptedId);
-                    document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得 ${numberOfPeople} 張餐券，請至服務台完成啟用。`;
+                    document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得餐券，請至服務台完成啟用。`;
                     // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
-                    const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
-                    QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
-                        if (error) console.error(error);
-                        console.log('QR code generated!');
-                    });
+                    // const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
+                    // QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
+                    //     if (error) console.error(error);
+                    //     console.log('QR code generated!');
+                    // });
 
                     document.getElementById('claimedMessage').style.display = 'block';
                     document.getElementById('claimForm').style.display = 'none';

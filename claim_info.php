@@ -22,18 +22,27 @@ if ($encryptedId) {
     
     $key = generateKey();
     $decrypted = decryptData($key, $encryptedId);
-    $id = ltrim($decrypted, '0');
-    $logger->write("id: $id");
+    // $id = ltrim($decrypted, '0');
+    // $logger->write("id: $id");
     // 查詢資料庫
-    $stmt = $conn->prepare("SELECT member_id, member, amount, check_flag FROM trade_records WHERE id = ?");
-    $stmt->bind_param("i", $id);
+    $stmt = $conn->prepare("SELECT 
+                                m.id AS member_id, 
+                                m.name AS member_name, 
+                                tr.amount, 
+                                tr.check_flag 
+                            FROM trade_records tr 
+                            JOIN members m 
+                            ON tr.member_id = m.id
+                            WHERE m.user_id = ?");
+    // $stmt = $conn->prepare("SELECT member_id, member, amount, check_flag FROM trade_records WHERE id = ?");
+    $stmt->bind_param("i", $decrypted);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($row = $result->fetch_assoc()) {
         echo json_encode(['success' => true,
             'member_id' => $row['member_id'],  
-            'member' => $row['member'], 
+            'member' => $row['member_name'], 
             'amount' => $row['amount'],
             'check_flag' => $row['check_flag']]);
     } else {

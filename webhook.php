@@ -34,9 +34,9 @@ function handleIncomingMessage($message, $userId, $accessToken) {
     // 根據消息內容返回不同的回應
     switch ($lowerMessage) {
         case '餐券':
-            return createButtonMessage("領取餐券", "https://www.wjtolive.com/christmas/claim.html?member=$encodedUserName");
+            return createButtonMessage("領取餐券", "https://www.wjtolive.com/christmas/claim.html?member=$encodedUserName&userid=$userId");
         case 'cgh':
-            return "Hi! $userName";
+            return "Hi! $userName, $userId";
     }
 }
 
