@@ -169,15 +169,35 @@
             console.log('Connected to WebSocket server');
         };
 
-
-
         // 從 URL 中讀取參數
         const urlParams = new URLSearchParams(window.location.search);
-        const storeName = urlParams.get('store') || "未指定店家";
-        let memberName;
+        const storeId = urlParams.get('store') || "未指定店家";
+        console.log(`storeId: ${storeId}`);
+        let s_id = 0;
+        let m_id = 0;
+
+        fetch('stores.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                storeId: storeId
+            })
+        })
+        .then(response => response.json())
+        .then(stores => {
+            console.log(`stores: ${JSON.stringify(stores, null, 2)}`);
+            if (stores.length === 1 && stores[0]) {
+                s_id = stores[0].id;
+                document.getElementById('store').value = stores[0].name;
+            }
+        })
+        .catch(error => console.error('Error fetching store name:', error));
+
+        // let memberName;
         // const memberName = urlParams.get('member') || "未指定會員";
         // console.log(memberName);
-        document.getElementById('store').value = storeName;
         let encryptedId;
         fetch('env.php')
             .then(response => response.json())
@@ -216,8 +236,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.balance !== undefined) {
-                            memberId = data.member_id;
-                            memberName = data.member;
+                            m_id = data.member;
+                            // memberId = data.member_id;
+                            // memberName = data.member;
                             document.getElementById('remaining').value = data.balance;
                         } else {
                             document.getElementById('message').textContent = "無法查詢剩餘金額。";
@@ -226,8 +247,6 @@
                     .catch(error => console.error('Error:', error));
             }
         }
-
-
 
         // 計算機功能
         function appendNumber(num) {
@@ -257,7 +276,7 @@
                 clearAmount();
                 return;
             }
-            console.log(`amount: ${amount}, store: ${store}, memberName: ${memberName}`);
+            console.log(`amount: ${amount}, store: ${store}`);
 
             if (amount.trim() === "") {
                 alert("請輸入消費金額！");
@@ -274,8 +293,8 @@
                 },
                 body: JSON.stringify({
                     encryptedId: encryptedId,
-                    member: memberName,
-                    store: store,
+                    member: m_id,
+                    store: s_id,
                     amount: negativeAmount,
                     check_flag: true
                 })
@@ -291,7 +310,7 @@
                         // 當消費成功後，發送 WebSocket 通知
                         const event = 'consume';
                         ws.send(JSON.stringify({ event, store: store, time: new Date().toISOString() }));
-                        alert(`消費成功！\n姓名: ${memberName}\n店家: ${store}\n金額: ${amount}`);
+                        alert(`消費成功！\n店家: ${store}\n金額: ${amount}`);
                     } else {
                         messageDiv.textContent = "消費失敗！請稍後再試。";
                     }
@@ -362,7 +381,6 @@
 
         // // 監聽按鈕點擊事件來啟動測試
         // document.getElementById('startTestButton').addEventListener('click', startConcurrentTest);
-
 
     </script>
 </body>

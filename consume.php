@@ -13,7 +13,7 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-
+$currentDateTime = date('Y-m-d H:i:s');
 // 從 POST 請求中獲取資料
 $data = json_decode(file_get_contents("php://input"), true);
 $encryptedId = $data['encryptedId']; 
@@ -29,18 +29,18 @@ $decrypted = decryptData($key, $encryptedId);
 
 if ($decrypted) {
     // 記錄最終的 SQL 字串 (參數會被替換成實際的值)
-    $finalSql = "INSERT INTO trade_records (member_id, member, store, amount, create_time, trade_time, check_flag) 
-                VALUES ('$decrypted', '$member', '$store', $amount, NOW(), NOW(), $check_flag)";
+    $finalSql = "INSERT INTO trade_records (member_id, store_id, amount, create_time, check_flag) 
+                VALUES ($member, $store, $amount, $currentDateTime, $check_flag)";
 
     // 將最終的 SQL 字串記錄到日誌
     $logger->write("Final SQL: $finalSql");
 
     // 寫入資料庫的 SQL 語句
-    $sql = "INSERT INTO trade_records (member_id, member, store, amount, create_time, trade_time, check_flag) 
-            VALUES (?, ?, ?, ?, NOW(), NOW(), ?)";
+    $sql = "INSERT INTO trade_records (member_id, store_id, amount, create_time, check_flag)
+            VALUES (?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssdi", $decrypted, $member, $store, $amount, $check_flag);
+    $stmt->bind_param("iiisi", $member, $store, $amount, $currentDateTime, $check_flag);
 
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);

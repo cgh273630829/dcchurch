@@ -17,12 +17,12 @@ if ($conn->connect_error) {
 // 從 POST 請求中獲取資料
 $data = json_decode(file_get_contents("php://input"), true);
 $id = $data['id'];
-$check = $data['check'];
+// $check = $data['check'];
 
 // 更新資料庫的 SQL 語句
-$sql = "UPDATE trade_records SET check_flag = ? WHERE id = ?";
+$sql = "UPDATE trade_records SET check_flag = false WHERE id = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $check, $id);
+$stmt->bind_param("i", $id);
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {

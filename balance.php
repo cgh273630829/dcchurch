@@ -25,7 +25,13 @@ if ($encryptedId) {
 
     if ($decrypted) {
         // 查詢該會員的所有交易並計算剩餘金額
-        $sql = "SELECT member, IFNULL(SUM(amount), 0) as balance FROM trade_records WHERE member_id = ? and check_flag = true GROUP BY member";
+        $sql = "SELECT 
+                    tr.member_id,
+                    IFNULL(SUM(tr.amount), 0) AS balance 
+                FROM trade_records tr 
+                JOIN members m
+                ON tr.member_id = m.id
+                WHERE m.user_id = ? and check_flag = true GROUP BY tr.member_id";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $decrypted);
         $stmt->execute();
@@ -34,10 +40,10 @@ if ($encryptedId) {
         
         if ($row = $result->fetch_assoc()) {
             $balance = $row['balance'];
-            $member = $row['member'];
+            $member = $row['member_id'];
         }
-    
-        echo json_encode(['balance' => $balance, 'member' => $member, 'member_id' => $decrypted]);
+        // echo json_encode(['balance' => $balance, 'member' => $member, 'member_id' => $decrypted]);
+        echo json_encode(['balance' => $balance]);
     } else {
         echo json_encode(['error' => 'No member specified']);
     }
