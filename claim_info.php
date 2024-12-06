@@ -22,6 +22,7 @@ if ($encryptedId) {
     
     $key = generateKey();
     $decrypted = decryptData($key, $encryptedId);
+    $logger->write("decrypted: $decrypted");
     // $id = ltrim($decrypted, '0');
     // $logger->write("id: $id");
     // 查詢資料庫
@@ -35,7 +36,7 @@ if ($encryptedId) {
                             ON tr.member_id = m.id
                             WHERE m.user_id = ?");
     // $stmt = $conn->prepare("SELECT member_id, member, amount, check_flag FROM trade_records WHERE id = ?");
-    $stmt->bind_param("i", $decrypted);
+    $stmt->bind_param("s", $decrypted);
     $stmt->execute();
     $result = $stmt->get_result();
 

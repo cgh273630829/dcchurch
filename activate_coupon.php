@@ -23,13 +23,14 @@ $data = json_decode(file_get_contents('php://input'), true);
 // 檢查是否有提供 id
 if (isset($data['id'])) {
     $id = $data['id'];
-    $logger->write("id: $id");
+    $amount = $data['amount'];
+    $logger->write("id: $id, amount: $amount");
     // 更新資料庫，將對應 id 的 check_flag 改為 true
-    $sql = "UPDATE trade_records SET check_flag = 1 WHERE member_id = ? and store_id = 1";
+    $sql = "UPDATE trade_records SET check_flag = 1, amount = ? WHERE member_id = ? and store_id = 1";
 
     // 預備及綁定參數
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
+    $stmt->bind_param("ii", $amount, $id);
 
     if ($stmt->execute()) {
         $logger->write("stmt->execute()");

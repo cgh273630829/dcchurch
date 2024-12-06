@@ -13,6 +13,7 @@
             <tr>
                 <th>編號</th>
                 <th>會員名稱</th>
+                <th>數量</th>
                 <th>金額</th>
                 <th>領取時間</th>
                 <th>狀態</th>
@@ -55,7 +56,7 @@
                 const tableBody = document.querySelector("#couponsTable tbody");
                 data.forEach(coupon => {
                     const row = document.createElement("tr");
-                    // SELECT tr.member_id, m.name, tr.amount, tr.trade_time, tr.check_flag 
+
                     const idCell = document.createElement("td");
                     idCell.textContent = coupon.member_id.toString();
                     row.appendChild(idCell);
@@ -64,6 +65,38 @@
                     nameCell.textContent = coupon.name;
                     row.appendChild(nameCell);
 
+                    // 可修改數量欄位
+                    const countCell = document.createElement("td");
+                    let count = Number(coupon.amount) / 200;
+                    countCell.textContent = count;
+
+                    let isEditing = false;
+                    countCell.addEventListener("click", () => {
+                        if (isEditing) return; // 避免重複進入編輯模式
+                        isEditing = true;
+
+                        const input = document.createElement("input");
+                        input.type = "number";
+                        input.min = 1;  // 設定最小值為 1
+                        input.value = count;
+                        input.style.width = "50px";
+                        input.addEventListener("blur", () => {
+                            count = parseInt(input.value);
+                            countCell.textContent = count;
+                            amountCell.textContent = count * 200;
+
+                            // 更新伺服器資料
+                            // updateCouponCount(coupon.member_id, newCount);
+                            isEditing = false;
+                        });
+                        countCell.textContent = "";
+                        countCell.appendChild(input);
+                        input.focus();
+                    });
+
+                    row.appendChild(countCell);
+
+                    // 金額欄位
                     const amountCell = document.createElement("td");
                     amountCell.textContent = coupon.amount;
                     row.appendChild(amountCell);
@@ -77,8 +110,7 @@
                         const button = document.createElement("button");
                         button.textContent = "啟用";
                         button.onclick = function () {
-                            console.log(coupon.member_id);
-                            activateCoupon(coupon.member_id, statusCell);
+                            activateCoupon(coupon.member_id, amountCell.textContent, statusCell);
                         };
                         statusCell.appendChild(button);
                     } else {
@@ -138,7 +170,7 @@
 
 
         // Function to activate the coupon
-        function activateCoupon(id, cell) {
+        function activateCoupon(id, amount, cell) {
             id_padded = id.toString().padStart(5, '0');
             console.log(id);
             console.log(cell);
@@ -147,7 +179,10 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ id: id })
+                body: JSON.stringify({ 
+                    id: id,
+                    amount: amount
+                 })
             })
                 .then(response => response.json())
                 .then(data => {

@@ -171,7 +171,7 @@
     <!-- Transaction Details Section -->
     <section id="transactions">
         <h2>交易紀錄</h2>
-        <div id="sum">
+        <div id="remaining">
             <!-- Data cards will be inserted here by JS -->
         </div>
         <div id="dataContainer">
@@ -190,10 +190,29 @@
         const memberName = urlParams.get('member');
         const userId = urlParams.get('userid');
         if (userId) {
-            getRecords(userId);
+            getRecords(userId, null);
+        } else {
+            let IDKey;
+            // 取得key以讀取local storage
+            fetch('env.php')
+            .then(response => response.json())
+            .then(data => {
+                IDKey = data.idKey;
+                console.log(`IDKey: ${IDKey}`);
+            })
+            .catch(error => {
+                console.error('Error fetching environment variables:', error);
+            });
+
+            const encryptedId = localStorage.getItem(IDKey);
+            console.log(encryptedId);
+
+            if (encryptedId) {
+                getRecords(null, encryptedId);
+            }
         }
 
-        function getRecords(user_id) {
+        function getRecords(user_id, encryptedId) {
             console.log(`getRecords: ${user_id}`);
             // Fetch data with selected store and check flag
             fetch('records.php', {
@@ -202,12 +221,13 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    member: user_id
+                    member: user_id,
+                    encryptedId: encryptedId
                 })
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.length === 0) {
+                    if (data.length === 0 || data.some(item => item.store_name === '服務台' && item.check_flag === 0)) {
                         window.location.replace(`quiz.html?member=${memberName}&userid=${userId}`);
                     }
                     console.log(`data: ${JSON.stringify(data, undefined, 2)}`);
@@ -216,12 +236,9 @@
                     container.innerHTML = '';
                     let sum = 0;
                     data.forEach(item => {
-                        if (item.store_name === '服務台') {
-                            if (item.check_flag === false) {
-                                window.location.replace(`quiz.html?member=${user_id}`);
-                            } else {
-                                return;
-                            }
+                        if (item.store_name === '服務台' && item.check_flag === 1) {
+                            sum += item.amount;
+                            return;
                         }
                         // "SELECT tr.id, m.name, s.name, tr.amount, tr.trade_time, tr.check_flag
                         const card = document.createElement("div");
@@ -253,7 +270,9 @@
                         const amount = document.createElement("p");
                         amount.textContent = `金額: ${item.amount}`;
                         cardContent.appendChild(amount);
-                        sum += item.amount;
+                        if (item.check_flag === 1) {
+                            sum += item.amount;
+                        }
 
                         const date = document.createElement("p");
                         date.textContent = `時間: ${item.trade_time}`;
@@ -264,7 +283,7 @@
                         // Append the card to the container
                         container.appendChild(card);
                     });
-                    document.getElementById("sum").textContent = `${sum >= 0 ? '支出' : '收入'} ${sum >= 0 ? sum : 0 - sum} 元`;
+                    document.getElementById("remaining").textContent = `剩餘 ${sum} 元`;
                 })
                 .catch(error => console.error('Error fetching data:', error));
         }

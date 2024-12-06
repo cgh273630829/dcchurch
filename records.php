@@ -6,9 +6,17 @@ $logger = new Log('/var/log/php_errors.log');
 header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
+$encryptedId = $data['encryptedId'] ?? null;
+$logger->write("encryptedId: $encryptedId");
 $member = $data['member'] ?? '%';
 $store = $data['store'] ?? '%';
 $check_flag = $data['check_flag'] ?? '%';
+
+if ($encryptedId && $member === '%') {
+    $key = generateKey();
+    $member = decryptData($key, $encryptedId);
+}
+
 $logger->write("member: $member, store: $store, check_flag: $check_flag");
 if ($store == 'all') {
     $store = '%';
@@ -76,4 +84,44 @@ echo json_encode($data);
 
 $stmt->close();
 $conn->close();
+
+function generateKey() {
+    global $logger;
+    $logger->write("generateKey");
+    $secretKeyStr = getenv('DC2024_SECRET_KEY');
+    if ($secretKeyStr === false) {
+        // 生成隨機 256 位密鑰
+        $logger->write("openssl_random_pseudo_bytes: $secretKeyStr");
+        $secretKey = openssl_random_pseudo_bytes(32); // 32 bytes = 256 bits
+        $logger->write("create new secretKey: " . bin2hex($secretKey));
+    } else {
+        $secretKey = hex2bin($secretKeyStr);
+        if ($secretKey === false) {
+            throw new Exception('Invalid secret key format in environment variable.');
+        }
+        $logger->write("get secretKey: " . bin2hex($secretKey));
+    }
+    
+    return $secretKey;
+}
+
+function decryptData($key, $data) {
+    // 從 Base64 中解碼
+    $combined = base64_decode($data);
+
+    // 從解碼的資料中提取 IV、密文和標籤
+    $iv = substr($combined, 0, 12); // 前 12 字節是 IV
+    $tag = substr($combined, -16); // 最後 16 字節是標籤
+    $cipherText = substr($combined, 12, -16); // 剩下的是密文
+
+    // 使用 AES-GCM 解密
+    $decrypted = openssl_decrypt($cipherText, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+    
+    if ($decrypted === false) {
+        throw new Exception('Decryption failed: ' . openssl_error_string());
+    }
+
+    return $decrypted; // 返回明文
+}
+
 ?>
