@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>題目卷</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .options {
+            margin-bottom: 20px;
+        }
+        .options label {
+            display: block;
+            margin: 5px 0;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 16px;
+            color: green;
+        }
+        .result.wrong {
+            color: red;
+        }
+        .final-results {
+            display: none;
+            margin-top: 20px;
+            font-size: 16px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <div class="result" id="result"></div>
+        <button class="submit-btn" onclick="submitAnswer()">提交答案</button>
+        <div class="final-results" id="final-results">
+            <h3>錯誤題目及正確答案：</h3>
+            <ul id="incorrect-answers"></ul>
+            <button class="claim-btn" onclick="doClaim()">領取數位餐券</button>
+        </div>
+    </div>
+
+    <script>
+        // 從 URL 中讀取參數
+        const urlParams = new URLSearchParams(window.location.search);
+        let memberName = urlParams.get('member') || "聖誕小夥伴";
+        let userid = urlParams.get('userid') || "";
+        // 題庫，包含6題，每題有4個選項
+        const questionSet = [
+            {
+                question: '1. 「以馬內利」(Emmanuel)是希伯來文，意思是 ？',
+                options: ['A. 上帝為我們加油', 'B. 上帝與我們同哭', 'C. 上帝與我們同在', 'D. 上帝祝我們聖誕快樂'],
+                correctAnswer: 'C'
+            },
+            {
+                question: '2. 聖誕節是慶祝什麼事件？',
+                options: ['A. 耶穌的誕生', 'B. 耶穌的復活', 'C. 耶穌的昇天', 'D. 神蹟出現'],
+                correctAnswer: 'A'
+            },
+            {
+                question: '3. 哪一位聖經人物是耶穌的母親？',
+                options: ['A. 瑪利亞', 'B. 以斯帖', 'C. 露得', 'D. 薩拉'],
+                correctAnswer: 'A'
+            },
+            {
+                question: '4. 耶穌誕生時，天使向誰報信？',
+                options: ['A. 約瑟', 'B. 牧羊人', 'C. 三博士', 'D. 彼得'],
+                correctAnswer: 'B'
+            },
+            {
+                question: '5. 在聖經中，耶穌是以什麼方式死於十字架？',
+                options: ['A. 被石頭砸死', 'B. 被釘在十字架上', 'C. 被投毒', 'D. 被火燒死'],
+                correctAnswer: 'B'
+            },
+            {
+                question: '6. 什麼節日是耶穌復活的紀念？',
+                options: ['A. 聖誕節', 'B. 復活節', 'C. 五旬節', 'D. 安息日'],
+                correctAnswer: 'B'
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let incorrectAnswers = [];
+
+        function loadQuestion() {
+            const currentQuestion = questionSet[currentQuestionIndex];
+            document.getElementById('question').textContent = currentQuestion.question;
+
+            let optionsHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                optionsHTML += `<label><input type="radio" name="answer" value="${String.fromCharCode(65 + index)}"> ${option}</label>`;
+            });
+            document.getElementById('options').innerHTML = optionsHTML;
+            document.getElementById('result').textContent = '';
+        }
+
+        function submitAnswer() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            const resultDiv = document.getElementById("result");
+
+            if (selectedAnswer) {
+                const answerValue = selectedAnswer.value;
+                userAnswers[currentQuestionIndex] = answerValue;
+
+                if (answerValue === questionSet[currentQuestionIndex].correctAnswer) {
+                    resultDiv.textContent = "正確！";
+                    resultDiv.style.color = "green";
+                } else {
+                    incorrectAnswers.push({
+                        question: questionSet[currentQuestionIndex].question,
+                        userAnswer: answerValue,
+                        correctAnswer: questionSet[currentQuestionIndex].correctAnswer
+                    });
+                    resultDiv.textContent = "錯誤！";
+                    resultDiv.style.color = "red";
+                }
+
+                currentQuestionIndex++;
+
+                if (currentQuestionIndex < questionSet.length) {
+                    loadQuestion();
+                } else {
+                    showFinalResults();
+                }
+            } else {
+                resultDiv.textContent = "請選擇一個答案！";
+                resultDiv.style.color = "red";
+            }
+        }
+
+        function showFinalResults() {
+            document.getElementById('question').style.display = 'none';
+            document.getElementById('options').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            document.querySelector('.submit-btn').style.display = 'none';
+            document.getElementById('final-results').style.display = 'block';
+
+            const incorrectAnswersList = document.getElementById('incorrect-answers');
+            incorrectAnswers.forEach(incorrect => {
+                const li = document.createElement('li');
+                li.textContent = `${incorrect.question} - 你的答案: ${incorrect.userAnswer}, 正確答案: ${incorrect.correctAnswer}`;
+                incorrectAnswersList.appendChild(li);
+            });
+        }
+
+        function doClaim() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            incorrectAnswers = [];
+            document.getElementById('final-results').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('options').style.display = 'block';
+            // loadQuestion();
+            window.location.replace(`claim.html?member=${memberName}&userid=${userid}`);
+        }
+
+        loadQuestion();
+    </script>
+
+</body>
+</html>

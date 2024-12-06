@@ -5,7 +5,7 @@ $logger = new Log('/var/log/php_errors.log');
 
 header('Content-Type: application/json');
 
-$data = json_decode(r('php://input'), true);
+$data = json_decode(file_get_contents('php://input'), true);
 $member = $data['member'] ?? '%';
 $store = $data['store'] ?? '%';
 $check_flag = $data['check_flag'] ?? '%';

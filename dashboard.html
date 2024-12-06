@@ -1,54 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>導覽頁面</title>
+    <title>聖誕市集導覽</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            padding: 0;
         }
-        h1 {
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        header a {
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+        }
+
+        header img {
+            width: 30px;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+
+        header div {
+            display: flex;
+            justify-content: space-evenly;
+            background-color: #333;
+            padding: 10px 0;
+        }
+
+        header a:hover {
+            background-color: #575757;
+        }
+
+        section {
+            padding: 20px;
+            padding-top: 80px;
+            /* Account for fixed header */
+            scroll-margin-top: 80px;
+            /* Prevent content overlap when scrolling */
+            margin: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        h2 {
+            text-align: center;
             margin-bottom: 20px;
         }
-        button {
-            padding: 15px;
-            margin: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
             color: white;
-            width: 90%; /* 設定按鈕寬度佔90% */
-            max-width: 500px; /* 可選：設置按鈕最大寬度 */
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .back-button {
-            background-color: #6c757d;
-        }
-        .back-button:hover {
-            background-color: #5a6268;
         }
     </style>
 </head>
+
 <body>
 
-    <h1>導覽頁面</h1>
-    <button onclick="window.location.href='http://34.80.165.113/christmas/claim.html'">領取餐券</button>
-    <button onclick="window.location.href='http://34.80.165.113/christmas/helper.html'">啟用餐券</button>
-    <button onclick="window.location.href='http://34.80.165.113/christmas/consume.html?store=小搞搞叭噗蛋餅'">小搞搞叭噗蛋餅</button>
-    <button onclick="window.location.href='http://34.80.165.113/christmas/records.html?store=小搞搞叭噗蛋餅&check_flag=true'">交易查詢</button>
-    <button onclick="window.location.href='http://34.80.165.113/christmas/records.html'">結算金額</button>
+    <header>
+        <!-- Navigation Buttons with Icons -->
+        <div>
+            <a href="#schedule">
+                <img src="img/time.gif" alt="時間表"><br>
+                時間表
+            </a>
+            <a href="#map">
+                <img src="img/store.gif" alt="地圖"><br>
+                地圖
+            </a>
+            <a href="#songs">
+                <img src="img/song.gif" alt="曲目"><br>
+                曲目
+            </a>
+            <a href="#transactions">
+                <img src="img/transaction.gif" alt="交易明細"><br>
+                明細
+            </a>
+        </div>
+    </header>
+
+    <!-- Time Schedule Section -->
+    <section>
+        <h2>數位餐券</h2>
+        <!-- <div style="margin: 20px;background-color: #f9f9f9;"> -->
+        <div style="text-align: center;">
+            <!-- 開啟 LINE 掃描器按鈕 -->
+            <button onclick="window.location.href='line://nv/addFriends'"
+                style="background-color: #00c300; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; margin-top: 10px; cursor: pointer;">
+                開啟 LINE 掃描器
+            </button>
+
+            <!-- 使用說明 -->
+            <ol style="margin-top: 15px; font-size: 16px; line-height: 1.6; text-align: left;">
+                <li>點擊上方的「開啟 LINE 掃描器」按鈕，會跳轉到 LINE 的加入好友畫面。</li>
+                <li>在跳轉的畫面中，點選紅框中的「行動條碼」按鈕即可開啟掃描器。</li>
+                <li>使用掃描器掃描攤位 QR Code，即可進行消費或交易。</li>
+            </ol>
+
+            <!-- 圖示 -->
+            <img src="img/scan.jpg" alt="掃描器圖示"
+                style="width: 100%; height: auto; margin-top: 15px; border: 1px solid #ccc; border-radius: 10px;">
+        </div>
+        <!-- </div> -->
+
+    </section>
+    <section id="schedule">
+        <h2>時間表</h2>
+        <ul>
+            <li>16:00 - 開幕祈禱</li>
+            <li>17:00 - 樂團表演-演唱:馨沂</li>
+            <li>18:30 - 樂團表演-演唱:阿馨</li>
+            <li>19:30 - 樂團表演-演唱:雯娟</li>
+            <li>20:30 - 樂團表演-演唱:如美<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 平安夜大合唱</li>
+        </ul>
+    </section>
+
+    <!-- Map Section -->
+    <section id="map">
+        <h2>地圖</h2>
+        <p>以下是聖誕市集的攤位分布圖：</p>
+        <img src="img/map.jpg" alt="市集平面圖" style="width: 100%; height: auto;">
+    </section>
+
+    <!-- Song List Section -->
+    <section id="songs">
+        <h2>歌曲曲目</h2>
+        <h3>馨沂</h3>
+        <ul>
+            <li>奇妙恩典</li>
+            <li>若有人在基督裡</li>
+            <li>恩典之洋</li>
+            <li>如祢</li>
+        </ul>
+        <h3>阿馨</h3>
+        <ul>
+            <li>我要歌唱</li>
+            <li>你是我天父</li>
+            <li>主 我獻上生命給你+在我呼召之處</li>
+            <li>求充滿這地</li>
+        </ul>
+        <h3>雯娟</h3>
+        <ul>
+            <li>都指向你</li>
+            <li>以馬內利</li>
+            <li>加利利的海</li>
+            <li>一直都是你</li>
+        </ul>
+        <h3>如美</h3>
+        <ul>
+            <li>未定</li>
+        </ul>
+    </section>
+
+    <!-- Transaction Details Section -->
+    <section id="transactions">
+        <h2>交易紀錄</h2>
+        <div id="sum">
+            <!-- Data cards will be inserted here by JS -->
+        </div>
+        <div id="dataContainer">
+            <!-- 卡片內容將通過 JavaScript 直接渲染 -->
+        </div>
+    </section>
+
+    <footer>
+        &copy; 2024 鼎金長老教會聖誕市集 All Rights Reserved.
+    </footer>
+
+    <script>
+
+        // 從 URL 中讀取參數
+        const urlParams = new URLSearchParams(window.location.search);
+        const memberName = urlParams.get('member');
+        const userId = urlParams.get('userid');
+        if (userId) {
+            getRecords(userId);
+        }
+
+        function getRecords(user_id) {
+            console.log(`getRecords: ${user_id}`);
+            // Fetch data with selected store and check flag
+            fetch('records.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    member: user_id
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        window.location.replace(`quiz.html?member=${memberName}&userid=${userId}`);
+                    }
+                    console.log(`data: ${JSON.stringify(data, undefined, 2)}`);
+                    // Clear previous data
+                    const container = document.getElementById("dataContainer");
+                    container.innerHTML = '';
+                    let sum = 0;
+                    data.forEach(item => {
+                        if (item.store_name === '服務台') {
+                            if (item.check_flag === false) {
+                                window.location.replace(`quiz.html?member=${user_id}`);
+                            } else {
+                                return;
+                            }
+                        }
+                        // "SELECT tr.id, m.name, s.name, tr.amount, tr.trade_time, tr.check_flag
+                        const card = document.createElement("div");
+                        card.classList.add("card");
+
+                        const cardContent = document.createElement("div");
+                        cardContent.classList.add("card-content");
+
+                        // Card content
+                        console.log(`id: ${item.id}, 
+                        member_name: ${item.member_name}
+                        store_name: ${item.store_name}
+                        amount: ${item.amount}
+                        trade_time: ${item.trade_time}
+                        check_flag: ${item.check_flag}`);
+                        const no = document.createElement("h3");
+                        no.textContent = item.id.toString().padStart(5, '0');
+                        // str.padStart(6, '0');
+                        cardContent.appendChild(no);
+
+                        const name = document.createElement("h3");
+                        name.textContent = item.member_name;
+                        cardContent.appendChild(name);
+
+                        const store = document.createElement("p");
+                        store.textContent = `店家: ${item.store_name}`;
+                        cardContent.appendChild(store);
+
+                        const amount = document.createElement("p");
+                        amount.textContent = `金額: ${item.amount}`;
+                        cardContent.appendChild(amount);
+                        sum += item.amount;
+
+                        const date = document.createElement("p");
+                        date.textContent = `時間: ${item.trade_time}`;
+                        cardContent.appendChild(date);
+
+                        card.appendChild(cardContent);
+
+                        // Append the card to the container
+                        container.appendChild(card);
+                    });
+                    document.getElementById("sum").textContent = `${sum >= 0 ? '支出' : '收入'} ${sum >= 0 ? sum : 0 - sum} 元`;
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+    </script>
 
 </body>
+
 </html>

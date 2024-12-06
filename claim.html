@@ -13,7 +13,7 @@
 
     <div id="claimedMessage" style="display:none;">
         <p>您已經領取餐券！</p>
-        <canvas id="qrCode"></div> <!-- QR code 生成區域 -->
+        <canvas id="qrCode"> <!-- QR code 生成區域 -->
     </div>
 
     <div id="claimForm" style="display:none;">
@@ -39,13 +39,13 @@
 
     <div id="message"></div>
     <button id="clearButton" onclick="clearLocalStorage()" style="display:none;">Clear LocalStorage</button>
-
+    
     <script>
         // 從 URL 中讀取參數
         const urlParams = new URLSearchParams(window.location.search);
         let memberName = urlParams.get('member') || "聖誕小夥伴";
         let userid = urlParams.get('userid') || "";
-        
+
         document.getElementById('memberName').value = memberName;
 
         // 設置點擊次數和長按計時器
@@ -79,7 +79,7 @@
         let idString;
         const ws = new WebSocket('wss://www.wjtolive.com:8080');  // 連接 PHP WebSocket 伺服器
 
-        ws.onmessage = function(event) {
+        ws.onmessage = function (event) {
             console.log(`event: ${JSON.stringify(event, null, 2)}`);
             const data = JSON.parse(event.data);
             console.log('Received message from WebSocket:', data);
@@ -88,38 +88,38 @@
                 console.log(`idString: ${idString}, member_id: ${data.member_id}`);
                 // 假設這裡根據店家名稱刷新紀錄
                 if (idString === data.member_id) {
-                    location.reload();
+                    window.location.replace(`dashboard.html?member=${memberName}&userid=${userid}`);
                 }
             }
         };
 
-        ws.onopen = function() {
+        ws.onopen = function () {
             console.log('Connected to WebSocket server');
         };
 
         let IDKey;
         // 取得key以讀取local storage
         fetch('env.php')
-        .then(response => response.json())
-        .then(data => {
-            IDKey = data.idKey;
-            console.log(`IDKey: ${IDKey}`);
-            getClaimData(IDKey);
-        })
-        .catch(error => {
-            console.error('Error fetching environment variables:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                IDKey = data.idKey;
+                console.log(`IDKey: ${IDKey}`);
+                getClaimData(IDKey);
+            })
+            .catch(error => {
+                console.error('Error fetching environment variables:', error);
+            });
 
         function getClaimData(key) {
-                // 檢查 localStorage 是否已有加密資料
+            // 檢查 localStorage 是否已有加密資料
             const encryptedId = localStorage.getItem(key);
             console.log(encryptedId);
 
             if (encryptedId) {
                 // generateKey().then(key => {
                 //     decryptData(key, storedData).then(decryptedData => {
-                        // console.log(decryptedData);
-                        // 取得解密後的ID並查詢資料庫
+                // console.log(decryptedData);
+                // 取得解密後的ID並查詢資料庫
                 // 取得餐券領取資訊
                 fetch('claim_info.php', {
                     method: 'POST',
@@ -128,32 +128,32 @@
                     },
                     body: JSON.stringify({ encryptedId: encryptedId })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(`data.success: ${data.success}`);
-                    if (data.success) {
-                        idString = data.member_id.toString().padStart(5, '0');
-                        const name = data.member;
-                        const count = data.amount / 200;
-                        const checkFlag = data.check_flag;
-                        // document.getElementById('claimedMessage').style.display = 'block';
-                        console.log(`Name: ${data.member}, People: ${count}`);
-                        if (!checkFlag) {
-                            document.getElementById('claimedMessage').style.display = 'block';
-                            const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
-                            console.log(qrContent);
-                            QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
-                                if (error) console.error(error);
-                                console.log('QR code generated!');
-                            });
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(`data.success: ${data.success}`);
+                        if (data.success) {
+                            idString = data.member_id.toString().padStart(5, '0');
+                            const name = data.member;
+                            const count = data.amount / 200;
+                            const checkFlag = data.check_flag;
+                            // document.getElementById('claimedMessage').style.display = 'block';
+                            console.log(`Name: ${data.member}, People: ${count}`);
+                            if (!checkFlag) {
+                                document.getElementById('claimedMessage').style.display = 'block';
+                                const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
+                                console.log(qrContent);
+                                QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
+                                    if (error) console.error(error);
+                                    console.log('QR code generated!');
+                                });
+                            }
+                            document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已啟用完成' : '請至服務台完成啟用'}。`;
+                        } else {
+                            document.getElementById('message').textContent = "查無資料！";
                         }
-                        document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已啟用完成' : '請至服務台完成啟用' }。`;
-                    } else  {
-                        document.getElementById('message').textContent = "查無資料！";
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-                    // });
+                    })
+                    .catch(error => console.error('Error:', error));
+                // });
                 // });
             } else {
                 document.getElementById('claimForm').style.display = 'block';
@@ -161,7 +161,7 @@
         }
 
         // 領取餐券按鈕邏輯
-        document.getElementById('claimButton').onclick = function() {
+        document.getElementById('claimButton').onclick = function () {
             memberName = document.getElementById('memberName').value;
             const numberOfPeople = document.getElementById('numberOfPeople').value;
 
@@ -176,40 +176,42 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ memberName: memberName, 
-                                       numberOfPeople: numberOfPeople,
-                                       userid: userid })
+                body: JSON.stringify({
+                    memberName: memberName,
+                    numberOfPeople: numberOfPeople,
+                    userid: userid
+                })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // let id = data.id.toString();
-                    idString = data.memberId.toString().padStart(5, '0');
-                    let encryptedId = data.encrypted.toString();
-                    console.log(`encryptedId: ${encryptedId}`);
-                    // generateKey().then(key => {
-                    //     encryptData(key, id).then(encryptedId => {
-                    console.log(`setItem: ${IDKey}`);
-                    localStorage.setItem(IDKey, encryptedId);
-                    document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得餐券，請至服務台完成啟用。`;
-                    // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
-                    // const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
-                    // QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
-                    //     if (error) console.error(error);
-                    //     console.log('QR code generated!');
-                    // });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // let id = data.id.toString();
+                        idString = data.memberId.toString().padStart(5, '0');
+                        let encryptedId = data.encrypted.toString();
+                        console.log(`encryptedId: ${encryptedId}`);
+                        // generateKey().then(key => {
+                        //     encryptData(key, id).then(encryptedId => {
+                        console.log(`setItem: ${IDKey}`);
+                        localStorage.setItem(IDKey, encryptedId);
+                        document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得餐券，請至服務台完成啟用。`;
+                        // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
+                        // const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
+                        // QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
+                        //     if (error) console.error(error);
+                        //     console.log('QR code generated!');
+                        // });
 
-                    document.getElementById('claimedMessage').style.display = 'block';
-                    document.getElementById('claimForm').style.display = 'none';
-                    //     });
-                    // });
-                    const event = 'claim';
-                    ws.send(JSON.stringify({ event, time: new Date().toISOString() }));
-                } else {
-                    document.getElementById('message').textContent = "領取失敗，請稍後再試！";
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                        document.getElementById('claimedMessage').style.display = 'block';
+                        document.getElementById('claimForm').style.display = 'none';
+                        //     });
+                        // });
+                        const event = 'claim';
+                        ws.send(JSON.stringify({ event, time: new Date().toISOString() }));
+                    } else {
+                        document.getElementById('message').textContent = "領取失敗，請稍後再試！";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         };
 
         function clearLocalStorage() {
@@ -222,4 +224,5 @@
         }
     </script>
 </body>
+
 </html>
