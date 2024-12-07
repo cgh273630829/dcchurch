@@ -8,25 +8,39 @@
     <link rel="stylesheet" href="consume.css">
     <!-- <script src="check_line.js" defer></script> -->
     <script>
+        let lastTouchTime = 0;
+        document.addEventListener('touchend', function (e) {
+            const now = new Date().getTime();
+            if (now - lastTouchTime <= 300) {
+                e.preventDefault(); // 防止連點放大
+            }
+            lastTouchTime = now;
+        }, { passive: false });
+
+        // 禁止多點觸控
         document.addEventListener('touchstart', function (e) {
             if (e.touches.length > 1) {
                 e.preventDefault();  // 禁止多點觸控
             }
         }, { passive: false });
         document.addEventListener('gesturestart', function (e) {
-          e.preventDefault();
+            e.preventDefault();
         });
       
         document.addEventListener('gesturechange', function (e) {
-          e.preventDefault();
+            e.preventDefault();
         });
       
         document.addEventListener('gestureend', function (e) {
-          e.preventDefault();
+            e.preventDefault();
         });
 
     </script>
     <style>
+        html, body {
+            touch-action: manipulation; /* 禁止雙指縮放 */
+            -ms-touch-action: manipulation; /* 兼容 IE */
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
