@@ -11,7 +11,7 @@
         let lastTouchTime = 0;
         document.addEventListener('touchend', function (e) {
             const now = new Date().getTime();
-            if (now - lastTouchTime <= 300) {
+            if (now - lastTouchTime <= 100) {
                 e.preventDefault(); // 防止連點放大
             }
             lastTouchTime = now;
@@ -207,6 +207,7 @@
         <div class="info-section">
             <div class="time" id="check_time"></div>
         </div>
+        <button id="closeButton">確認</button>
         <div class="info-section">
             <div class="message" id="confirmMessage"></div>
         </div>
@@ -408,7 +409,8 @@
                         document.getElementById('check_amount').textContent = `付款完成：NT$${amount}`;
                         document.getElementById('check_store').textContent = `店家名稱：${storeName}`;
                         document.getElementById('check_time').textContent = `付款時間：${data.time}`;
-                        document.getElementById('confirmMessage').textContent = `請使用瀏覽器右上角的 X 按鈕關閉`;
+                        // document.getElementById('confirmMessage').textContent = `請使用瀏覽器右上角的 X 按鈕關閉`;
+                        // window.close();
                     } else {
                         messageDiv.textContent = "消費失敗！請稍後再試。";
                     }
@@ -416,6 +418,12 @@
                 .catch(error => console.error('Error:', error));
         };
 
+
+        document.getElementById('closeButton').onclick = function () {
+            window.close();
+            document.getElementById('closeButton').style.display = 'none';
+            document.getElementById('confirmMessage').textContent = `請使用瀏覽器右上角的 X 按鈕關閉`;
+        };
         // const url = 'consume.php';
 
         // // 定義用於模擬請求的數據

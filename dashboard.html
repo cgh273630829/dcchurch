@@ -244,8 +244,10 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.length === 0 || data.some(item => item.store_name === '服務台' && item.check_flag === 0)) {
+                    if (data.length === 0) {
                         window.location.replace(`quiz.html?member=${memberName}&userid=${userId}`);
+                    } else if (data.some(item => item.store_name === '服務台' && item.check_flag === 0)) {
+                        window.location.replace(`claim.html?member=${memberName}&userid=${userId}`);
                     }
                     console.log(`data: ${JSON.stringify(data, undefined, 2)}`);
                     // Clear previous data

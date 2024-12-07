@@ -119,6 +119,9 @@
       })
       .then(response => response.json())
       .then(data => {
+        let helperSum = 0;
+        let consumeSum = 0;
+        let detail = {};
         console.log(`data: ${JSON.stringify(data, undefined, 2)}`);
         // Clear previous data
         const container = document.getElementById("dataContainer");
@@ -213,8 +216,43 @@
 
           // Append the card to the container
           container.appendChild(card);
+
+          if (item.store_name === '服務台') {
+            helperSum += Number(item.amount);
+          } else {
+            consumeSum += 0 - Number(item.amount);
+          }
+          if (!detail[item.member_name]) {
+            detail[item.member_name] = Number(item.amount);
+          } else {
+            detail[item.member_name] += Number(item.amount);
+          }
+
         });
         document.getElementById("sum").textContent = `${sum >= 0 ? '支出' : '收入'} ${sum >= 0 ? sum : 0 - sum} 元`;
+        if (store === 'all') {
+          let remain = 0;
+          for (const key in detail) {
+            if (detail[key] === 0) {
+              delete detail[key]; // 刪除值為0的鍵
+            } else {
+              remain += detail[key];
+            }
+          }
+          let table = '<table border="1"><tr><th>姓名</th><th>剩餘金額</th></tr>';
+
+          // 添加行
+          for (const [key, value] of Object.entries(detail)) {
+              table += `<tr><td>${key}</td><td>${value}</td></tr>`;
+          }
+          table += `<tr><td>總計</td><td>${remain}</td></tr>`;
+          table += '</table>';
+          document.getElementById("sum").innerHTML = `領券人數: ${helperSum/200}</br>
+                                                      餐券支出: ${helperSum}</br>
+                                                      總消費金額: ${consumeSum}</br>
+                                                      總剩餘金額: ${helperSum - consumeSum}</br>
+                                                      ${table}`;
+        }
       })
       .catch(error => console.error('Error fetching data:', error));
     }
