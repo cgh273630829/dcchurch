@@ -44,7 +44,7 @@ if ($conn->connect_error) {
 $logger->write("member: $member, store: $store, check_flag: $check_flag");
 // 取得當前時間
 // 建立查詢語句
-$sql = "SELECT tr.id, m.name AS member_name, s.name AS store_name, tr.amount, tr.trade_time, tr.check_flag
+$sql = "SELECT tr.id, m.user_id, m.name AS member_name, s.name AS store_name, tr.amount, tr.trade_time, tr.check_flag
         FROM trade_records tr
         JOIN members m
         ON tr.member_id = m.id

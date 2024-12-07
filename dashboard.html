@@ -217,7 +217,7 @@
         ws.onmessage = function (event) {
             const data = JSON.parse(event.data);
             console.log('Received message from WebSocket:', data);
-            if (data.event === 'consume') {
+            if (data.event === 'consume' || data.event === 'records') {
                 // 假設這裡根據店家名稱刷新紀錄
                 if (userId === data.member) {
                     getRecords(userId, null);  // 假設這是用來刷新交易紀錄的函數
@@ -286,6 +286,10 @@
 
                         const amount = document.createElement("p");
                         amount.textContent = `金額: ${item.amount}`;
+                        if (item.check_flag === 0) {
+                            amount.textContent = `金額: ${item.amount}(取消付款)`;
+                            amount.style.color = 'red';
+                        }
                         cardContent.appendChild(amount);
                         if (item.check_flag === 1) {
                             sum += item.amount;

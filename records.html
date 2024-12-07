@@ -195,7 +195,7 @@
             const confirmDelete = confirm("確定要取消該筆交易嗎？");
             if (confirmDelete) {
               // 如果點擊"是"，執行刪除操作
-              cancelCheck(item.id);
+              cancelCheck(item.id, item.user_id);
               // input.checked = false; // 滑動開關設置為未選中狀態
               cancelButton.style.display = 'none'; // Hide cancel button
             }
@@ -218,7 +218,7 @@
     }
 
     // Function to cancel the check status
-    function cancelCheck(id) {
+    function cancelCheck(id, userId) {
       fetch('update.php', {
         method: 'POST',
         headers: {
@@ -234,9 +234,9 @@
             // const encrypted = updated.encrypted.toString();
             // console.log(`update memberId: ${memberId}`);
             const event = 'records';
-            ws.send(JSON.stringify({ event, time: new Date().toISOString() }));
+            ws.send(JSON.stringify({ event, member: userId, time: new Date().toISOString() }));
             console.log("Check status canceled.");
-            getRecords(storeName, null, checkFlag);
+            getRecords(storeName, null, null);
           }
         })
         .catch(error => console.error('Error canceling check status:', error));
