@@ -27,87 +27,84 @@
 
     </script>
     <style>
-        html, body {
-            touch-action: none;
-            overflow: hidden;
-        }
-
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            background-color: #f9f9f9;
         }
 
         .container {
             text-align: center;
-            border: 1px solid #ccc;
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            touch-action: none;
-            width: 350px;
+            width: 100%;
+            max-width: 400px;
             padding: 20px;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .info-section {
             margin-bottom: 20px;
-            font-size: 18px;
         }
 
-        .info-section input {
-            text-align: center;
-            font-size: 20px;
+        .info-section p {
+            margin: 0;
+            font-size: 16px;
+            color: #555;
+        }
+
+        .info-section .store,
+        .info-section .amount,
+        .info-section .remaining {
+            font-size: 24px;
             font-weight: bold;
-            color: #333;
+            margin: 5px 0;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
         }
 
         .buttons button {
-            width: 60px;
-            height: 60px;
+            font-size: 24px;
+            height: 70px;
+            border: none;
+            border-radius: 10px;
+            background-color: #e0e0e0;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .buttons button:active {
+            background-color: #d0d0d0;
+        }
+
+        #consumeButton {
             font-size: 20px;
-            margin: 5px;
-            touch-action: manipulation;
-            background-color: #f1f1f1;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .buttons button:hover {
-            background-color: #ccc;
-        }
-
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            font-size: 18px;
-            margin-bottom: 20px;
-            text-align: center;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: #4CAF50;
+            background-color: #4caf50;
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 15px;
+            border-radius: 10px;
             cursor: pointer;
             width: 100%;
         }
 
-        button:hover {
+        #consumeButton:hover {
             background-color: #45a049;
+        }
+
+        #consumeButton:active {
+            background-color: #3e8e41;
         }
     </style>
 </head>
@@ -128,26 +125,16 @@
     <div id="message"></div> -->
 
     <div class="container">
-
-        <!-- 消費店家顯示 -->
-        <!-- <div class="info-section"> -->
-            <input type="text" id="store" readonly>
-        <!-- </div> -->
-
-        
-
-        <!-- 顯示消費金額 -->
-        <!-- <div class="info-section"> -->
-            <input type="text" id="amount" readonly value="NT$0">
-        <!-- </div> -->
-
-        <!-- 顯示剩餘金額，括號包起來 -->
-        <!-- <div class="info-section"> -->
-            <input type="text" id="remaining" readonly>
-        <!-- </div> -->
-         <!-- 消費按鈕 -->
-        <button id="consumeButton">消費</button>
-        <!-- 計算機介面 -->
+        <div class="info-section">
+            <div class="store" id="store"></div>
+            <!-- <input class="store" type="text" id="store" readonly> -->
+        </div>
+        <div class="info-section">
+            <div class="amount" id="amount">NT$0</div>
+        </div>
+        <div class="info-section">
+            <div class="remaining" id="remaining"></div>
+        </div>
         <div class="buttons">
             <button onclick="appendNumber(1)">1</button>
             <button onclick="appendNumber(2)">2</button>
@@ -160,12 +147,10 @@
             <button onclick="appendNumber(9)">9</button>
             <button onclick="clearAmount()">C</button>
             <button onclick="appendNumber(0)">0</button>
-            <button onclick="deleteLastDigit()"><</button>
+            <button onclick="deleteLastDigit()"><<<</button>
         </div>
-
-        <!-- 顯示訊息 -->
+        <button id="consumeButton">確認消費</button>
         <div id="message"></div>
-        
     </div>
     <div id="confirm" style="display: none;">
         <div id="confirmMessage"></div>
@@ -213,7 +198,7 @@
             console.log(`stores: ${JSON.stringify(stores, null, 2)}`);
             if (stores.length === 1 && stores[0]) {
                 s_id = stores[0].id;
-                document.getElementById('store').value = stores[0].name;
+                document.getElementById('store').textContent = stores[0].name;
             }
         })
         .catch(error => console.error('Error fetching store name:', error));
@@ -263,7 +248,7 @@
                             // userId = data.userId;
                             memberId = data.member_id;
                             // memberName = data.member;
-                            document.getElementById('remaining').value = data.balance;
+                            document.getElementById('remaining').textContent = `(${data.balance})`;
                         } else {
                             document.getElementById('message').textContent = "無法查詢剩餘金額。";
                         }
@@ -275,29 +260,31 @@
         // 計算機功能
         function appendNumber(num) {
             const amountInput = document.getElementById("amount");
-            const remaining = document.getElementById('remaining').value;
-            amountInput.value = amountInput.value.replace('NT$', '');
+            const remainingInput = document.getElementById('remaining');
+            remainingInput.textContent = remainingInput.textContent.replace('(', '').replace(')','');
+            amountInput.textContent = amountInput.textContent.replace('NT$', '');
             
-            if (amountInput.value === "0") {
+            if (amountInput.textContent === "0") {
                 if (num !== 0) {
-                    amountInput.value = num.toString();
+                    amountInput.textContent = num.toString();
                 }
             } else {
-                amountInput.value = amountInput.value + num;
+                amountInput.textContent = amountInput.textContent + num;
             }
-            if (parseInt(amountInput.value) > parseInt(remaining)) {
-                amountInput.value = remaining;
+            if (parseInt(amountInput.textContent) > parseInt(remainingInput.textContent)) {
+                amountInput.textContent = remainingInput.textContent;
             }
-            amountInput.value = `NT$${amountInput.value}`;
+            remainingInput.textContent = `(${remainingInput.textContent})`;
+            amountInput.textContent = `NT$${amountInput.textContent}`;
         }
 
         function clearAmount() {
-            document.getElementById("amount").value = "NT$0";
+            document.getElementById("amount").textContent = "NT$0";
         }
 
         function deleteLastDigit() {
             const amountInput = document.getElementById("amount");
-            let currentValue = amountInput.value.slice(0, -1); // 刪除最後一個數字
+            let currentValue = amountInput.textContent.slice(0, -1); // 刪除最後一個數字
 
             // 如果刪除後的金額是空的，設置為 "0"
             if (currentValue === "NT$") {
@@ -305,15 +292,16 @@
             }
 
             // 更新顯示的金額
-            amountInput.value = currentValue;
+            amountInput.textContent = currentValue;
         }
 
         // 消費按鈕功能
         document.getElementById('consumeButton').onclick = function () {
-            const remaining = document.getElementById('remaining').value;
-            let amount = document.getElementById('amount').value;
+            let remaining = document.getElementById('remaining').textContent;
+            let amount = document.getElementById('amount').textContent;
+            remaining = remaining.replace('(','').replace(')','');
             amount = amount.replace('NT$','');
-            const store = document.getElementById('store').value;
+            const store = document.getElementById('store').textContent;
 
             console.log(`remaining: ${remaining}, amount: ${amount}`);
 
@@ -356,7 +344,7 @@
                         const event = 'consume';
                         ws.send(JSON.stringify({ event, store: store, member: memberId, time: new Date().toISOString() }));
                         // alert(`消費成功！\n店家: ${store}\n金額: ${amount}`);
-                        const storeName = document.getElementById('store').value;
+                        const storeName = document.getElementById('store').textContent;
                         document.querySelector('.container').style.display = 'none';
                         document.getElementById('confirm').style.display = 'block';
                         document.getElementById('confirmMessage').textContent = `付款完成：NT$${amount}，
