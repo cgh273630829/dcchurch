@@ -43,7 +43,7 @@ if ($decrypted) {
     $stmt->bind_param("iiisi", $member, $store, $amount, $currentDateTime, $check_flag);
 
     if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'time' => $currentDateTime]);
     } else {
         echo json_encode(['success' => false]);
     }

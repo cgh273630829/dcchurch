@@ -60,7 +60,10 @@
 
         .info-section .store,
         .info-section .amount,
-        .info-section .remaining {
+        .info-section .remaining,
+        .info-section .time,
+        .info-section .message {
+            
             font-size: 24px;
             font-weight: bold;
             margin: 5px 0;
@@ -105,6 +108,23 @@
 
         #consumeButton:active {
             background-color: #3e8e41;
+        }
+        
+        #message {
+            color: red;
+
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            text-align: right; /* 將內容向右對齊 */
+        }
+
+        .arrow-image {
+            /* width: 100%;  */
+            max-width: 100%; /* 確保圖片不超過容器寬度 */
+            height: auto; /* 維持圖片比例 */
         }
     </style>
 </head>
@@ -153,7 +173,21 @@
         <div id="message"></div>
     </div>
     <div id="confirm" style="display: none;">
-        <div id="confirmMessage"></div>
+        <div class="info-section">
+            <img src="img/arrow.svg" alt="Arrow" class="arrow-image" />
+        </div>
+        <div class="info-section">
+            <div class="amount" id="check_amount">NT$0</div>
+        </div>
+        <div class="info-section">
+            <div class="store" id="check_store"></div>
+        </div>
+        <div class="info-section">
+            <div class="time" id="check_time"></div>
+        </div>
+        <div class="info-section">
+            <div class="message" id="confirmMessage"></div>
+        </div>
     </div>
 
     <script>
@@ -306,14 +340,16 @@
             console.log(`remaining: ${remaining}, amount: ${amount}`);
 
             if (Number(remaining) <= 0 || Number(remaining) < Number(amount)) {
-                alert("剩餘金額不足");
+                document.getElementById('message').textContent = "剩餘金額不足！";
+                // alert("剩餘金額不足");
                 clearAmount();
                 return;
             }
             console.log(`amount: ${amount}, store: ${store}`);
 
-            if (amount.trim() === "") {
-                alert("請輸入消費金額！");
+            if (amount.trim() === "0") {
+                document.getElementById('message').textContent = "請輸入消費金額！";
+                // alert("請輸入消費金額！");
                 return;
             }
 
@@ -347,10 +383,10 @@
                         const storeName = document.getElementById('store').textContent;
                         document.querySelector('.container').style.display = 'none';
                         document.getElementById('confirm').style.display = 'block';
-                        document.getElementById('confirmMessage').textContent = `付款完成：NT$${amount}，
-                                                                                 店家名稱：${storeName}，
-                                                                                 請使用瀏覽器右上角的 X 按鈕關閉。`;
-                        // window.location.replace(`dashboard.html`);                   
+                        document.getElementById('check_amount').textContent = `付款完成：NT$${amount}`;
+                        document.getElementById('check_store').textContent = `店家名稱：${storeName}`;
+                        document.getElementById('check_time').textContent = `付款時間：${data.time}`;
+                        document.getElementById('confirmMessage').textContent = `請使用瀏覽器右上角的 X 按鈕關閉`;
                     } else {
                         messageDiv.textContent = "消費失敗！請稍後再試。";
                     }
