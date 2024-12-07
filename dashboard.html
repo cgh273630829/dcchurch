@@ -212,6 +212,23 @@
             }
         }
 
+        const ws = new WebSocket('wss://www.wjtolive.com:8080');  // 連接 PHP WebSocket 伺服器
+
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log('Received message from WebSocket:', data);
+            if (data.event === 'consume') {
+                // 假設這裡根據店家名稱刷新紀錄
+                if (userId === data.member) {
+                    getRecords(userId, null);  // 假設這是用來刷新交易紀錄的函數
+                }
+            }
+        };
+
+        ws.onopen = function () {
+            console.log('Connected to WebSocket server');
+        };
+
         function getRecords(user_id, encryptedId) {
             console.log(`getRecords: ${user_id}`);
             // Fetch data with selected store and check flag

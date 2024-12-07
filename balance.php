@@ -42,8 +42,8 @@ if ($encryptedId) {
             $balance = $row['balance'];
             $member = $row['member_id'];
         }
-        // echo json_encode(['balance' => $balance, 'member' => $member, 'member_id' => $decrypted]);
-        echo json_encode(['balance' => $balance]);
+        echo json_encode(['balance' => $balance, 'member' => $member, 'member_id' => $decrypted]);
+        // echo json_encode(['balance' => $balance, 'userId' => $decrypted]);
     } else {
         echo json_encode(['error' => 'No member specified']);
     }

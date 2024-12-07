@@ -88,32 +88,32 @@
             {
                 question: '1. 「以馬內利」(Emmanuel)是希伯來文，意思是 ？',
                 options: ['A. 上帝為我們加油', 'B. 上帝與我們同哭', 'C. 上帝與我們同在', 'D. 上帝祝我們聖誕快樂'],
-                correctAnswer: 'C'
+                correctAnswer: '2'
             },
             {
                 question: '2. 聖誕節是慶祝什麼事件？',
                 options: ['A. 耶穌的誕生', 'B. 耶穌的復活', 'C. 耶穌的昇天', 'D. 神蹟出現'],
-                correctAnswer: 'A'
+                correctAnswer: '0'
             },
             {
                 question: '3. 哪一位聖經人物是耶穌的母親？',
                 options: ['A. 瑪利亞', 'B. 以斯帖', 'C. 露得', 'D. 薩拉'],
-                correctAnswer: 'A'
+                correctAnswer: '0'
             },
             {
                 question: '4. 耶穌誕生時，天使向誰報信？',
                 options: ['A. 約瑟', 'B. 牧羊人', 'C. 三博士', 'D. 彼得'],
-                correctAnswer: 'B'
+                correctAnswer: '1'
             },
             {
                 question: '5. 在聖經中，耶穌是以什麼方式死於十字架？',
                 options: ['A. 被石頭砸死', 'B. 被釘在十字架上', 'C. 被投毒', 'D. 被火燒死'],
-                correctAnswer: 'B'
+                correctAnswer: '1'
             },
             {
                 question: '6. 什麼節日是耶穌復活的紀念？',
                 options: ['A. 聖誕節', 'B. 復活節', 'C. 五旬節', 'D. 安息日'],
-                correctAnswer: 'B'
+                correctAnswer: '1'
             }
         ];
 
@@ -127,7 +127,7 @@
 
             let optionsHTML = '';
             currentQuestion.options.forEach((option, index) => {
-                optionsHTML += `<label><input type="radio" name="answer" value="${String.fromCharCode(65 + index)}"> ${option}</label>`;
+                optionsHTML += `<label><input type="radio" name="answer" value="${index}"> ${option}</label>`;
             });
             document.getElementById('options').innerHTML = optionsHTML;
             document.getElementById('result').textContent = '';
@@ -147,8 +147,8 @@
                 } else {
                     incorrectAnswers.push({
                         question: questionSet[currentQuestionIndex].question,
-                        userAnswer: answerValue,
-                        correctAnswer: questionSet[currentQuestionIndex].correctAnswer
+                        userAnswer: questionSet[currentQuestionIndex].options[answerValue],
+                        correctAnswer: questionSet[currentQuestionIndex].options[questionSet[currentQuestionIndex].correctAnswer]
                     });
                     resultDiv.textContent = "錯誤！";
                     resultDiv.style.color = "red";
@@ -177,18 +177,18 @@
             const incorrectAnswersList = document.getElementById('incorrect-answers');
             incorrectAnswers.forEach(incorrect => {
                 const li = document.createElement('li');
-                li.textContent = `${incorrect.question} - 你的答案: ${incorrect.userAnswer}, 正確答案: ${incorrect.correctAnswer}`;
+                li.innerHTML = `${incorrect.question} </br>你的答案: ${incorrect.userAnswer}</br>正確答案: ${incorrect.correctAnswer}`;
                 incorrectAnswersList.appendChild(li);
             });
         }
 
         function doClaim() {
-            currentQuestionIndex = 0;
-            userAnswers = [];
-            incorrectAnswers = [];
-            document.getElementById('final-results').style.display = 'none';
-            document.getElementById('result').style.display = 'block';
-            document.getElementById('options').style.display = 'block';
+            // currentQuestionIndex = 0;
+            // userAnswers = [];
+            // incorrectAnswers = [];
+            // document.getElementById('final-results').style.display = 'none';
+            // document.getElementById('result').style.display = 'block';
+            // document.getElementById('options').style.display = 'block';
             // loadQuestion();
             window.location.replace(`claim.html?member=${memberName}&userid=${userid}`);
         }

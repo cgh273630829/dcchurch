@@ -197,6 +197,7 @@
         console.log(`storeId: ${storeId}`);
         let s_id = 0;
         let m_id = 0;
+        let userId;
 
         fetch('stores.php', {
             method: 'POST',
@@ -259,7 +260,8 @@
                     .then(data => {
                         if (data.balance !== undefined) {
                             m_id = data.member;
-                            // memberId = data.member_id;
+                            // userId = data.userId;
+                            memberId = data.member_id;
                             // memberName = data.member;
                             document.getElementById('remaining').value = data.balance;
                         } else {
@@ -352,7 +354,7 @@
                         clearAmount();
                         // 當消費成功後，發送 WebSocket 通知
                         const event = 'consume';
-                        ws.send(JSON.stringify({ event, store: store, time: new Date().toISOString() }));
+                        ws.send(JSON.stringify({ event, store: store, member: memberId, time: new Date().toISOString() }));
                         // alert(`消費成功！\n店家: ${store}\n金額: ${amount}`);
                         const storeName = document.getElementById('store').value;
                         document.querySelector('.container').style.display = 'none';
