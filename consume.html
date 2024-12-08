@@ -271,8 +271,14 @@
                 console.log(`IDKey: ${IDKey}`);
                 encryptedId = localStorage.getItem(IDKey);
                 console.log(`encryptedId: ${encryptedId}`);
-                fetchBalance();
-
+                if (!encryptedId) {
+                    document.getElementById('message').textContent = "請先加入教會LINE社群，完成啟用領券。";
+                    document.querySelectorAll('button').forEach(button => {
+                        button.disabled = true;
+                    });
+                } else {
+                    fetchBalance();
+                }
             })
             .catch(error => {
                 console.error('Error fetching environment variables:', error);

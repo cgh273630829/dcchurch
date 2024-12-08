@@ -93,8 +93,8 @@
         <div class="final-results" id="final-results">
             <h3>錯誤題目及正確答案：</h3>
             <ul id="incorrect-answers"></ul>
-            <button class="claim-btn" onclick="doClaim()">領取數位餐券</button>
         </div>
+        <button class="claim-btn" onclick="doClaim()" style="display: none;">領取數位餐券</button>
     </div>
 
     <script>
@@ -191,7 +191,8 @@
             document.getElementById('options').style.display = 'none';
             document.getElementById('result').style.display = 'none';
             document.querySelector('.submit-btn').style.display = 'none';
-            document.getElementById('final-results').style.display = 'block';
+            // document.getElementById('final-results').style.display = 'block';
+            document.querySelector('.claim-btn').style.display = 'block';
 
             const incorrectAnswersList = document.getElementById('incorrect-answers');
             incorrectAnswers.forEach(incorrect => {
@@ -199,6 +200,9 @@
                 li.innerHTML = `${incorrect.question} </br>你的答案: ${incorrect.userAnswer}</br>正確答案: ${incorrect.correctAnswer}`;
                 incorrectAnswersList.appendChild(li);
             });
+            if (incorrectAnswers.length > 0) {
+                document.getElementById('final-results').style.display = 'block';
+            }
         }
 
         function doClaim() {
