@@ -103,45 +103,113 @@
         let memberName = urlParams.get('member') || "聖誕小夥伴";
         let userid = urlParams.get('userid') || "";
         // 題庫，包含6題，每題有4個選項
-        const questionSet = [
+        const questionSet1 = [
             {
-                question: '1. 「以馬內利」(Emmanuel)是希伯來文，意思是 ？',
+                question: '1. 「以馬內利」(Emmanuel)是希伯來文，意思是________？',
                 options: ['A. 上帝為我們加油', 'B. 上帝與我們同哭', 'C. 上帝與我們同在', 'D. 上帝祝我們聖誕快樂'],
                 correctAnswer: '2'
             },
             {
-                question: '2. 聖誕節是慶祝什麼事件？',
-                options: ['A. 耶穌的誕生', 'B. 耶穌的復活', 'C. 耶穌的昇天', 'D. 神蹟出現'],
+                question: '2. 馬太福音1:23「必有童女懷孕生子，他的名要叫以馬內利。」請問經文中的「童女」指的是誰？',
+                options: ['A. 馬卡龍', 'B. 馬利亞', 'C. 可麗露', 'D. 馬利歐'],
+                correctAnswer: '1'
+            },
+            {
+                question: '3. 東方來的博士朝拜耶穌，他們送給主耶穌哪三樣禮物？',
+                options: ['A. 黃金、乳香、沒藥', 'B. 尿布、奶粉、濕紙巾', 'C. 黃金、布料、沒藥', 'D. 烤雞、Pizza、蘋果派'],
                 correctAnswer: '0'
             },
             {
-                question: '3. 哪一位聖經人物是耶穌的母親？',
-                options: ['A. 瑪利亞', 'B. 以斯帖', 'C. 露得', 'D. 薩拉'],
-                correctAnswer: '0'
+                question: '4. 請問「聖誕節」是慶祝誰的降生？',
+                options: ['A. 大衛', 'B. 希律王', 'C. 耶穌', 'D. 聖誕老公公'],
+                correctAnswer: '2'
             },
             {
-                question: '4. 耶穌誕生時，天使向誰報信？',
+                question: '5. 天使對牧羊人說耶穌誕生的記號是什麼？',
+                options: ['A. 背上有一個胎記', 'B. 包著布、臥在馬槽', 'C. 包著布布、吃奶嘴', 'D. 哭最大聲的嬰兒 '],
+                correctAnswer: '1'
+            },
+            {
+                question: '6. 6. 請問耶穌出生在什麼地點？',
+                options: ['A. 伯利恆', 'B. 巴西', 'C. 醫院', 'D. 可愛巧虎島'],
+                correctAnswer: '0'
+            }
+        ];
+
+        const questionSet2 = [
+            {
+                question: '1. 有哪一位聖經人物應驗了以賽亞先知的預言來「預備主的道路」？',
+                options: ['A. 施咒約翰', 'B. 施肥約翰', 'C. 施洗約翰', 'D. 施工約翰'],
+                correctAnswer: '2'
+            },
+            {
+                question: '2. 牧羊人在曠野遇見什麼向他們報耶穌誕生的好消息？',
+                options: ['A. 村民', 'B. 天使、天軍', 'C. 會說話的狼', 'D. 放羊的孩子'],
+                correctAnswer: '1'
+            },
+            {
+                question: '3. 人們期待著彌賽亞的來臨，請問「彌賽亞」的意思是什麼？',
+                options: ['A. 生日快樂', 'B. 新年祝福', 'C. 救世主', 'D. 吃飽了嗎？'],
+                correctAnswer: '2'
+            },
+            {
+                question: '4. 先知預言說必有童女懷孕生子，要給他起名叫什麼？',
+                options: ['A. 約拿', 'B. 保羅', 'C. 以馬內利', 'D. 彼得'],
+                correctAnswer: '2'
+            },
+            {
+                question: '5. 耶穌出生的時候，星星指引了誰到祂的所在地？',
+                options: ['A. 牧羊人', 'B. 博士', 'C. 天使', 'D. 動物'],
+                correctAnswer: '1'
+            },
+            {
+                question: '6. 耶穌的父母在找不到旅店後，住進了哪裡？',
+                options: ['A. 馬槽', 'B. 帳篷', 'C. 山洞', 'D. 樓上的閣樓'],
+                correctAnswer: '0'
+            }
+        ];
+
+        const questionSet3 = [
+            {
+                question: '1. 耶穌出生時，天使向誰報信？',
                 options: ['A. 約瑟', 'B. 牧羊人', 'C. 三博士', 'D. 彼得'],
                 correctAnswer: '1'
             },
             {
-                question: '5. 在聖經中，耶穌是以什麼方式死於十字架？',
-                options: ['A. 被石頭砸死', 'B. 被釘在十字架上', 'C. 被投毒', 'D. 被火燒死'],
+                question: '2. 東方來的博士朝拜耶穌，他們送給主耶穌哪三樣禮物？',
+                options: ['A. 黃金、乳香、沒藥', 'B. 尿布、奶粉、濕紙巾', 'C. 黃金、布料、沒藥', 'D. 烤雞、Pizza、蘋果派'],
+                correctAnswer: '0'
+            },
+            {
+                question: '3. 人們期待著彌賽亞的來臨，請問「彌賽亞」的意思是什麼？',
+                options: ['A. 生日快樂', 'B. 新年祝福', 'C. 救世主', 'D. 吃飽了嗎？'],
+                correctAnswer: '2'
+            },
+            {
+                question: '4. 誰是第一批來敬拜耶穌的人？',
+                options: ['A. 博士', 'B. 天使', 'C. 牧羊人', 'D. 村民'],
+                correctAnswer: '2'
+            },
+            {
+                question: '5. 天使對牧羊人說耶穌誕生的記號是什麼？',
+                options: ['A. 背上有一個胎記', 'B. 包著布、臥在馬槽', 'C. 包著布布、吃奶嘴', 'D. 哭最大聲的嬰兒'],
                 correctAnswer: '1'
             },
             {
-                question: '6. 什麼節日是耶穌復活的紀念？',
-                options: ['A. 聖誕節', 'B. 復活節', 'C. 五旬節', 'D. 安息日'],
-                correctAnswer: '1'
+                question: '6. 「以馬內利」(Emmanuel)是希伯來文，意思是________？',
+                options: ['A. 上帝為我們加油', 'B. 上帝與我們同哭', 'C. 上帝與我們同在', 'D. 上帝祝我們聖誕快樂'],
+                correctAnswer: '2'
             }
         ];
+        const questionSets = [questionSet1, questionSet2, questionSet3];
+        const selectedSet = questionSets[Math.floor(Math.random() * questionSets.length)];
 
         let currentQuestionIndex = 0;
         let userAnswers = [];
         let incorrectAnswers = [];
 
         function loadQuestion() {
-            const currentQuestion = questionSet[currentQuestionIndex];
+            const currentQuestion = selectedSet[currentQuestionIndex];
             document.getElementById('question').textContent = currentQuestion.question;
 
             let optionsHTML = '';
@@ -160,14 +228,14 @@
                 const answerValue = selectedAnswer.value;
                 userAnswers[currentQuestionIndex] = answerValue;
 
-                if (answerValue === questionSet[currentQuestionIndex].correctAnswer) {
+                if (answerValue === selectedSet[currentQuestionIndex].correctAnswer) {
                     resultDiv.textContent = "正確！";
                     resultDiv.style.color = "green";
                 } else {
                     incorrectAnswers.push({
-                        question: questionSet[currentQuestionIndex].question,
-                        userAnswer: questionSet[currentQuestionIndex].options[answerValue],
-                        correctAnswer: questionSet[currentQuestionIndex].options[questionSet[currentQuestionIndex].correctAnswer]
+                        question: selectedSet[currentQuestionIndex].question,
+                        userAnswer: selectedSet[currentQuestionIndex].options[answerValue],
+                        correctAnswer: selectedSet[currentQuestionIndex].options[selectedSet[currentQuestionIndex].correctAnswer]
                     });
                     resultDiv.textContent = "錯誤！";
                     resultDiv.style.color = "red";
@@ -175,7 +243,7 @@
 
                 currentQuestionIndex++;
 
-                if (currentQuestionIndex < questionSet.length) {
+                if (currentQuestionIndex < selectedSet.length) {
                     loadQuestion();
                 } else {
                     showFinalResults();
