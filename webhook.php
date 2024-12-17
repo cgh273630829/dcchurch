@@ -37,6 +37,8 @@ function handleIncomingMessage($message, $userId, $accessToken) {
             return createButtonMessage("領取餐券", "https://www.wjtolive.com/christmas/claim.html?member=$encodedUserName&userid=$userId");
         case '市集':
             return createButtonMessage("逛市集", "https://www.wjtolive.com/christmas/dashboard.html?member=$encodedUserName&userid=$userId");
+        case '結帳':
+            return createButtonMessage("設定結帳", "https://www.wjtolive.com/christmas/checkout.html?member=$encodedUserName&userid=$userId");
         case 'cgh':
             return "Hi! $userName, $userId";
     }

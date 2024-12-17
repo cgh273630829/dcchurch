@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市集攤位選擇</title>
+    
+</head>
+<body>
+    <h1>市集攤位選擇</h1>
+    <div>
+        <p>歡迎，<span id="userName">訪客</span> (ID: <span id="userId">未知</span>)</p>
+    </div>
+
+    <form id="marketForm">
+        <label for="storeSelect">攤位:</label>
+        <select id="storeSelect">
+        <!-- Store options will be populated here -->
+        </select>
+
+        <button type="submit">設定完成</button>
+    </form>
+    <script>
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let memberName = urlParams.get('member') || "聖誕小夥伴";
+        let userid = urlParams.get('userid') || "";
+        let memberid;
+
+        document.getElementById('userName').textContent = memberName;
+        document.getElementById('userId').textContent = userid;
+
+        fetch('claim_info.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ decryptedId: userid })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(`data.success: ${data.success}`);
+                if (data.success) {
+                    memberid = data.member_id;
+                    if (data.store_id) {
+                        window.location.replace(`records.html?store=${data.store_id}`);
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
+
+
+        document.getElementById("marketForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            // 彈出框輸入密碼
+            const password = prompt("請輸入密碼：");
+            if (!password || password.trim() === "") {
+                alert("密碼不可為空！");
+                return;
+            }
+
+
+            const storeid = document.getElementById("storeSelect").value;
+            if (storeid) {
+
+                fetch('checkout.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: memberid,
+                        memberName: memberName,
+                        storeid: storeid,
+                        userid: userid,
+                        password: password
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.replace(`records.html?store=${storeid}`);
+                        } else {
+                            document.getElementById('message').textContent = "設定失敗！";
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+
+                // const recordsUrl = `/records.html?name=${encodeURIComponent(params.name)}&userId=${encodeURIComponent(params.userId)}&stall=${encodeURIComponent(stall.value)}`;
+                // window.location.href = recordsUrl;
+            } else {
+                alert("請選擇一個攤位！");
+            }
+
+            
+
+        });
+
+        fetch('stores.php')
+        .then(response => response.json())
+        .then(stores => {
+          const storeSelect = document.getElementById("storeSelect");
+
+          // 動態生成 store 選項
+          stores.forEach(store => {
+            const option = document.createElement("option");
+            option.value = store.store_id;
+            option.textContent = store.name;
+            storeSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Error fetching store options:', error));
+
+
+    </script>
+</body>
+</html>

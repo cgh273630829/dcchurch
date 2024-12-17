@@ -63,6 +63,43 @@
       helper = false;
       // document.getElementById("recordSelect").style = 
     } else if (memberId) {
+
+      fetch('claim_info.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ encryptedId: encryptedId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(`data.success: ${data.success}`);
+            if (data.success) {
+                idString = data.member_id.toString().padStart(5, '0');
+                const name = data.member;
+                const count = data.amount / 200;
+                const checkFlag = data.check_flag;
+                // document.getElementById('claimedMessage').style.display = 'block';
+                console.log(`Name: ${data.member}, People: ${count}`);
+                if (!checkFlag) {
+                    document.getElementById('claimedMessage').style.display = 'block';
+                    const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
+                    console.log(qrContent);
+                    QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
+                        if (error) console.error(error);
+                        console.log('QR code generated!');
+                    });
+                }
+                document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已啟用完成' : '請至服務台完成啟用'}。`;
+            } else {
+                document.getElementById('message').textContent = "查無資料！";
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+
+
+
       getRecords(null, memberId, null);
       helper = true;
     } else if (!urlParams.toString()) {

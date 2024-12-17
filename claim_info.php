@@ -6,8 +6,9 @@ header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
 $encryptedId = $data['encryptedId'] ?? null;
+$decryptedId = $data['decryptedId'] ?? null;
 $logger->write("claim_info encryptedId: $encryptedId");
-if ($encryptedId) {
+if ($encryptedId || $decryptedId) {
     $servername = "localhost"; // 伺服器名稱
     $username = "cgh273630829"; // 使用者名稱
     $password = "120531ChiaHu"; // 密碼
@@ -19,9 +20,14 @@ if ($encryptedId) {
         echo json_encode(['success' => false]);
         exit();
     }
+    $decrypted;
+    if ($decryptedId) {
+        $decrypted = $decryptedId;
+    } else {
+        $key = generateKey();
+        $decrypted = decryptData($key, $encryptedId);
+    }
     
-    $key = generateKey();
-    $decrypted = decryptData($key, $encryptedId);
     $logger->write("decrypted: $decrypted");
     // $id = ltrim($decrypted, '0');
     // $logger->write("id: $id");
@@ -30,10 +36,13 @@ if ($encryptedId) {
                                 m.id AS member_id, 
                                 m.name AS member_name, 
                                 tr.amount, 
-                                tr.check_flag 
+                                tr.check_flag,
+                                s.store_id 
                             FROM trade_records tr 
                             JOIN members m 
                             ON tr.member_id = m.id
+                            LEFT JOIN stores s
+                            ON m.store = s.id
                             WHERE m.user_id = ?");
     // $stmt = $conn->prepare("SELECT member_id, member, amount, check_flag FROM trade_records WHERE id = ?");
     $stmt->bind_param("s", $decrypted);
@@ -41,12 +50,16 @@ if ($encryptedId) {
     $result = $stmt->get_result();
 
     if ($row = $result->fetch_assoc()) {
+        $logger->write("success: true");
         echo json_encode(['success' => true,
             'member_id' => $row['member_id'],  
             'member' => $row['member_name'], 
             'amount' => $row['amount'],
-            'check_flag' => $row['check_flag']]);
+            'check_flag' => $row['check_flag'],
+            'store_id' => $row['store_id']]);
+
     } else {
+        $logger->write("success: false");
         echo json_encode(['success' => false]);
     }
 
