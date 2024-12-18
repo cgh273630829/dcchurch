@@ -31,11 +31,11 @@ INSERT INTO `stores` (`id`, `name`, `store_id`) VALUES
 ALTER TABLE `stores`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
-INSERT INTO `members` (`id`, `name`, `user_id`, `store`) VALUES
-(1, '莊佳宏', 'U13632791ba70a0146ad6f2d13ba60d7e', NULL);
+-- INSERT INTO `members` (`id`, `name`, `user_id`, `store`) VALUES
+-- (1, '莊佳宏', 'U13632791ba70a0146ad6f2d13ba60d7e', NULL);
 
-ALTER TABLE `members`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+-- ALTER TABLE `members`
+--   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 -- 設定外鍵
 -- ALTER TABLE `members`

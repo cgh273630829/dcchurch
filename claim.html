@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>領取餐券</title>
     <link rel="stylesheet" href="claim.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script> <!-- 引入 QR code 庫 -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script> 引入 QR code 庫 -->
     <!-- <script src="check_line.js" defer></script> -->
 </head>
 <body>
     <h1 id="title">領取餐券</h1>
 
     <div id="claimedMessage" style="display:none;">
-        <p>您已經領取餐券！</p>
-        <canvas id="qrCode"> <!-- QR code 生成區域 -->
+        <h3>您已經領取餐券！</h3>
+        <!-- <canvas id="qrCode"> QR code 生成區域 -->
     </div>
 
     <div id="claimForm" style="display:none;">
@@ -22,6 +22,7 @@
 
         <select id="numberOfPeople" required>
             <!-- 產生 1 到 10 的選項 -->
+            <option value="0">紙張</option>
             <option value="1" selected>1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -140,14 +141,16 @@
                             console.log(`Name: ${data.member}, People: ${count}`);
                             if (!checkFlag) {
                                 document.getElementById('claimedMessage').style.display = 'block';
-                                const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
-                                console.log(qrContent);
-                                QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
-                                    if (error) console.error(error);
-                                    console.log('QR code generated!');
-                                });
+                                // const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
+                                // console.log(qrContent);
+                                // QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
+                                //     if (error) console.error(error);
+                                //     console.log('QR code generated!');
+                                // });
                             }
-                            document.getElementById('message').textContent = `您好 ${idString}，${name}，已成功取得 ${count} 張餐券，${checkFlag ? '已啟用完成' : '請至服務台完成啟用'}。`;
+                            document.getElementById('message').innerHTML = `<h2>${idString}</h2><br>
+                                                                              您好 <h2>${memberName}</h2><br>
+                                                                              已成功取得 <h2>${count} 張餐券</h2><br>${checkFlag ? '已啟用完成' : '請至服務台完成啟用'}`;
                         } else {
                             document.getElementById('message').textContent = "查無資料！";
                         }
@@ -165,7 +168,7 @@
             memberName = document.getElementById('memberName').value;
             const numberOfPeople = document.getElementById('numberOfPeople').value;
 
-            if (memberName.trim() === "" || numberOfPeople < 1) {
+            if (memberName.trim() === "" || numberOfPeople < 0) {
                 alert("請輸入有效的資料！");
                 return;
             }
@@ -193,7 +196,9 @@
                         //     encryptData(key, id).then(encryptedId => {
                         console.log(`setItem: ${IDKey}`);
                         localStorage.setItem(IDKey, encryptedId);
-                        document.getElementById('message').textContent = `您好 ${idString}，${memberName}，已成功取得餐券，請至服務台完成啟用。`;
+                        document.getElementById('message').innerHTML = `<h2>${idString}</h2><br>
+                                                                              您好 <h2>${memberName}</h2><br>
+                                                                              已成功取得 <h2>${numberOfPeople} 張餐券</h2><br>請至服務台完成啟用`;
                         // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
                         // const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
                         // QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {

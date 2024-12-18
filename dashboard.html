@@ -76,6 +76,10 @@
             border: 1px solid #ddd;
         }
         .song-button {
+            padding-top: 80px;
+            /* Account for fixed header */
+            scroll-margin-top: 80px;
+            /* Prevent content overlap when scrolling */
             font-size: 1.2em; /* 將字體放大，調整數值來控制大小 */
             padding: 10px 15px; /* 調整按鈕的內邊距以適應放大的字體 */
             background-color: #f0f0f0; /* 可選：按鈕背景色 */
@@ -86,6 +90,14 @@
 
         .song-button:hover {
             background-color: #e0e0e0; /* 可選：滑鼠懸停時的背景顏色 */
+        }
+
+        ul {
+            padding: 0;
+            list-style-type: none;
+        }
+        ul > li {
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -155,7 +167,7 @@
     <section id="map">
         <h2>地圖</h2>
         <p>以下是聖誕市集的攤位分布圖：</p>
-        <img src="img/map.jpg" alt="市集平面圖" style="width: 100%; height: auto;">
+        <img src="img/map1.jpg" alt="市集平面圖" style="width: 100%; height: auto;">
     </section>
 
     <!-- Song List Section -->
@@ -163,7 +175,7 @@
         <h2>歌曲曲目</h2>
         <h3>如美</h3>
         <ul>
-            <li><button class="song-button">我主我真快樂</button>
+            <li><a href="#lyrics1-1" id="lyrics1-1" class="song-button">我主我真快樂</a>
                 <div class="lyrics">
                     我真快樂因認識救主，生命之中充滿主恩典  <br>
                     生活行為得到大改變，我主我真快樂  <br>
@@ -178,19 +190,25 @@
                     我主我真快樂<br>
                     </div>
             </li>
-            <li><button class="song-button">無人像耶穌這樣愛顧我</button>
+            <li><a href="#lyrics1-2" id="lyrics1-2" class="song-button">無人像耶穌這樣愛顧我</a>
                 <div class="lyrics">
-                    讓我向你述說主耶穌的寶貴，祂是我忠心朋友永不改變<br>
-                    讓我向你述說祂如何改造我，無人像祂救我脫離眾罪鏈<br>
+                    讓我向你述說主耶穌的寶貴<br>
+                    祂是我忠心朋友永不改變<br>
+                    讓我向你述說祂如何改造我<br>
+                    無人像祂救我脫離眾罪鏈<br>
                     <br>
-                    當我陷在罪中時，主來尋找我，那時我心中充滿失望痛苦<br>
-                    耶穌用慈愛大能膀臂扶助我，引導我走那永生公義道路<br>
+                    當我陷在罪中時，主來尋找我<br>
+                    那時我心中充滿失望痛苦<br>
+                    耶穌用慈愛大能膀臂扶助我<br>
+                    引導我走那永生公義道路<br>
                     <br>
-                    無人像耶穌這樣愛顧我，無朋友像主這樣仁愛<br>
-                    無人像祂能把我罪惡全赦免，主愛我何等大哉<br>
+                    無人像耶穌這樣愛顧我<br>
+                    無朋友像主這樣仁愛<br>
+                    無人像祂能把我罪惡全赦免<br>
+                    主愛我何等大哉<br>
                     </div>
             </li>
-            <li><button class="song-button">倚靠上帝永恆的膀臂</button>
+            <li><a href="#lyrics1-3" id="lyrics1-3" class="song-button">倚靠上帝永恆的膀臂</a>
                 <div class="lyrics">
                     何等大喜樂 何等的情誼<br>
                     倚靠上帝永恆的膀臂<br>
@@ -212,7 +230,7 @@
                     倚靠 倚靠<br>
                     倚靠上帝永恆的膀臂<br>
             </li>
-            <li><button class="song-button">神愛你</button>
+            <li><a href="#lyrics1-4" id="lyrics1-4" class="song-button">神愛你</a>
                 <div class="lyrics">
                     世上最甜蜜的故事，神愛你<br>
                     最光彩美麗的圖畫，神愛你<br>
@@ -225,7 +243,7 @@
                     向上仰望見曙光，神愛你<br>
                     </div>
             </li>
-            <li><button class="song-button">星星上的禮物</button>
+            <li><a href="#lyrics1-5" id="lyrics1-5" class="song-button">星星上的禮物</a>
                 <div class="lyrics">
                     在星空下飛往那滿載著夢想的天空<br>
                     我多麼想和你一起遨遊在夜空之下<br>
@@ -243,20 +261,22 @@
 
         <h3>馨沂</h3>
         <ul>
-            <li><button class="song-button">聖誕結</button>
+            <li><a href="#lyrics2-1" id="lyrics2-1" class="song-button">聖誕結</a>
                 <div class="lyrics">
                     在很久很久以前 有個故事有點特別<br>
-                    它說有個嬰孩來到世界 從此以後有個聖誕節<br>
+                    它說有個嬰孩來到世界<br>
+                    從此以後有個聖誕節<br>
                     <br>
                     全世界為了這一天 送著禮物寫著卡片<br>
-                    這是許多人心裡一個結 不瞭解人們為何喜悅<br>
+                    這是許多人心裡一個結<br>
+                    不瞭解人們為何喜悅<br>
                     <br>
                     聖誕結 解開了會看見<br>
                     不是熱鬧燈街 是耶穌降生的夜<br>
                     這一天 世界更多笑臉<br>
                     因為你我就算不完美 耶穌祂能代替一切<br>
             </li>
-            <li><button class="song-button">如祢</button>
+            <li><a href="#lyrics2-2" id="lyrics2-2" class="song-button">如祢</a>
                 <div class="lyrics">
                     站立在祢座前<br>
                     站立在 祢信實面前<br>
@@ -277,7 +297,7 @@
                     我心 坦然無懼 敬拜祢 跟隨祢<br>
                     永恆 在祢手裡  我放下 自己<br>
             </li>
-            <li><button class="song-button">若有人在基督裡</button>
+            <li><a href="#lyrics2-3" id="lyrics2-3" class="song-button">若有人在基督裡</a>
                 <div class="lyrics">
                     我來到主座前<br>
                     生命交由祢掌權<br>
@@ -301,7 +321,7 @@
                     舊事已過<br>
                     全是新的 全是新的<br>
             </li>
-            <li><button class="song-button">恩典之洋</button>
+            <li><a href="#lyrics2-4" id="lyrics2-4" class="song-button">恩典之洋</a>
                 <div class="lyrics">
                     你在水面上呼喚著我<br>
                     跨入未知　深怕失落<br>
@@ -330,7 +350,7 @@
         
         <h3>雯娟</h3>
         <ul>
-            <li><button class="song-button">一直都是你</button>
+            <li><a href="#lyrics3-1" id="lyrics3-1" class="song-button">一直都是你</a>
                 <div class="lyrics">
                     祢看見我<br>
                     在我人生低谷，祢擁抱著我<br>
@@ -360,7 +380,7 @@
                     那是祢，一直都是祢<br>  
                     我知道是祢<br>  </div>
             </li>
-            <li><button class="song-button">加利利的海</button>
+            <li><a href="#lyrics3-2" id="lyrics3-2" class="song-button">加利利的海</a>
                 <div class="lyrics">是祢翻轉我生命<br>
                     以馬內利打開我心<br>
                     呼召我得人如魚<br>
@@ -401,7 +421,7 @@
                     耶穌為我而來<br></div>
             </li>
 
-            <li><button class="song-button">都指向你</button>
+            <li><a href="#lyrics3-3" id="lyrics3-3" class="song-button">都指向你</a>
                 <div class="lyrics">跳脫 這世界的節奏 <br>
                     一切烏雲拋在腦後 <br>
                     全心 開口向祢呼求 <br>
@@ -427,7 +447,7 @@
                     我決定一生跟隨祢 <br>
                     到底<br></div>
             </li>
-            <li><button class="song-button">以馬內利</button>
+            <li><a href="#lyrics3-4" id="lyrics3-4" class="song-button">以馬內利</a>
                 <div class="lyrics">在火窯中 捆鎖裡 無聲的吶喊裡<br>
                     沙漠中 墳墓裡 孤單的等待裡<br>
                     我在尋找你<br>
@@ -458,7 +478,7 @@
         <h3>阿馨</h3>
         <ul>
 
-            <li><button class="song-button">我要歌唱</button>
+            <li><a href="#lyrics4-1" id="lyrics4-1" class="song-button">我要歌唱</a>
                 <div class="lyrics">我要大聲歌唱，賜給我自由主的慈愛<br>
                     擺上祂的所有的一切<br>主耶穌拯救了我<br>
                     <br>
@@ -496,7 +516,7 @@
                     喔我要活在主的榮耀中<br></div>
             </li>
 
-            <li><button class="song-button">求充滿這地</button>
+            <li><a href="#lyrics4-2" id="lyrics4-2" class="song-button">求充滿這地</a>
                 <div class="lyrics">喔主 感謝祢創造這土地<br>
                     以永恆話語賜下無限生命<br>
                     用恩典的馨香氣息祝福這地<br>
@@ -535,7 +555,7 @@
                     全地尊榮祢聖名 為祢而站立<br></div>
             </li>
 
-            <li><button class="song-button">主我獻上生命給你<br>+ 在呼召我之處</button>
+            <li><a href="#lyrics4-3" id="lyrics4-3" class="song-button">主我獻上生命給你 + 在呼召我之處</a>
                 <div class="lyrics">我將自己完全獻上<br>
                     毫無保留放在祢的腳前<br>
                     所有的悔恨一切的稱讚<br>
@@ -577,7 +597,7 @@
                     無論環境好壞，猶原贊美敬拜<br></div>
             </li>
 
-            <li><button class="song-button">祢是我天父</button>
+            <li><a href="#lyrics4-4" id="lyrics4-4" class="song-button">祢是我天父</a>
                 <div class="lyrics">不論我逃到哪裡去祢都看顧<br>
                     不論我犯了什麼錯祢你接納我<br>
                     祢擦去我眼淚跌倒祢扶持我<br>
