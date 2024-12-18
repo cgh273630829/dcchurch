@@ -195,7 +195,7 @@
         <div id="message"></div>
     </div>
     <div id="confirm" style="display: none;">
-        <div class="info-section">
+        <div id="arrow" class="info-section" style="display: none;">
             <img src="img/arrow.svg" alt="Arrow" class="arrow-image" />
         </div>
         <div class="info-section">
@@ -427,6 +427,7 @@
 
         document.getElementById('closeButton').onclick = function () {
             window.close();
+            document.getElementById('arrow').style.display = 'block';
             document.getElementById('closeButton').style.display = 'none';
             document.getElementById('confirmMessage').textContent = `請使用瀏覽器右上角的 X 按鈕關閉`;
         };
