@@ -15,6 +15,7 @@
                 <th>會員名稱</th>
                 <th>數量</th>
                 <th>金額</th>
+                <th>攤位</th>
                 <th>領取時間</th>
                 <th>狀態</th>
             </tr>
@@ -100,6 +101,42 @@
                     const amountCell = document.createElement("td");
                     amountCell.textContent = coupon.amount;
                     row.appendChild(amountCell);
+
+                    const storeCell = document.createElement("td");
+                    storeCell.textContent = coupon.store_name;
+                    if (storeCell.textContent) {
+                        storeCell.addEventListener("click", () => {
+                            const password = prompt("是否取消結帳請輸入密碼：");
+                            if (!password || password.trim() === "") {
+                                alert("密碼不可為空！");
+                                return;
+                            }
+
+                            fetch('checkout.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    id: coupon.member_id,
+                                    storeid: '',
+                                    password: password
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    storeCell.textContent = '';
+                                    document.getElementById('message').textContent = "已取消結帳權限！";
+                                } else {
+                                    document.getElementById('message').textContent = "設定失敗！";
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        });
+                    }
+
+                    row.appendChild(storeCell);
 
                     const timeCell = document.createElement("td");
                     timeCell.textContent = coupon.trade_time;

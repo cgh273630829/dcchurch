@@ -11,10 +11,10 @@
 <body>
     <h1 id="title">領取餐券</h1>
 
-    <div id="claimedMessage" style="display:none;">
+    <!-- <div id="claimedMessage" style="display:none;">
         <h3>您已經領取餐券！</h3>
-        <!-- <canvas id="qrCode"> QR code 生成區域 -->
-    </div>
+        <canvas id="qrCode"> QR code 生成區域
+    </div> -->
 
     <div id="claimForm" style="display:none;">
         <input type="text" id="memberName" placeholder="輸入會員名稱" required>
@@ -139,18 +139,19 @@
                             const checkFlag = data.check_flag;
                             // document.getElementById('claimedMessage').style.display = 'block';
                             console.log(`Name: ${data.member}, People: ${count}`);
-                            if (!checkFlag) {
-                                document.getElementById('claimedMessage').style.display = 'block';
+                            // if (!checkFlag) {
+                            //     document.getElementById('claimedMessage').style.display = 'block';
                                 // const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
                                 // console.log(qrContent);
                                 // QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
                                 //     if (error) console.error(error);
                                 //     console.log('QR code generated!');
                                 // });
-                            }
-                            document.getElementById('message').innerHTML = `<h2>${idString}</h2><br>
-                                                                              您好 <h2>${memberName}</h2><br>
-                                                                              已成功取得 <h2>${count} 張餐券</h2><br>${checkFlag ? '已啟用完成' : '請至服務台完成啟用'}`;
+                            // }
+                            document.getElementById('message').innerHTML = `<h2>請保留此畫面</h2>
+                                                                        <h2>${idString} ${checkFlag ? '已啟用完成' : '請至服務台完成啟用'}</h2><br>
+                                                                        <h2>您好 ${memberName}</h2><br>
+                                                                        已成功取得 <h2>${count} 張餐券</h2>`;
                         } else {
                             document.getElementById('message').textContent = "查無資料！";
                         }
@@ -196,9 +197,10 @@
                         //     encryptData(key, id).then(encryptedId => {
                         console.log(`setItem: ${IDKey}`);
                         localStorage.setItem(IDKey, encryptedId);
-                        document.getElementById('message').innerHTML = `<h2>${idString}</h2><br>
-                                                                              您好 <h2>${memberName}</h2><br>
-                                                                              已成功取得 <h2>${numberOfPeople} 張餐券</h2><br>請至服務台完成啟用`;
+                        document.getElementById('message').innerHTML = `<h2>請保留此畫面</h2>
+                                                                        <h2>${idString}請至服務台完成啟用</h2><br>
+                                                                        您好 <h2>${memberName}</h2><br>
+                                                                        已成功取得 <h2>${numberOfPeople} 張餐券</h2>`;
                         // const qrContent = `Name: ${memberName}, People: ${numberOfPeople}`;
                         // const qrContent = `https://www.wjtolive.com/christmas/helper.html?member_id=${idString}`;
                         // QRCode.toCanvas(document.getElementById('qrCode'), qrContent, function (error) {
@@ -206,7 +208,7 @@
                         //     console.log('QR code generated!');
                         // });
 
-                        document.getElementById('claimedMessage').style.display = 'block';
+                        // document.getElementById('claimedMessage').style.display = 'block';
                         document.getElementById('claimForm').style.display = 'none';
                         //     });
                         // });

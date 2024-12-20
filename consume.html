@@ -412,7 +412,7 @@
                         const storeName = document.getElementById('store').textContent;
                         document.querySelector('.container').style.display = 'none';
                         document.getElementById('confirm').style.display = 'block';
-                        document.getElementById('check_amount').textContent = `付款完成：NT$${amount}`;
+                        document.getElementById('check_amount').innerHTML = `<p style="color: red;">可向攤位出示此畫面</p><br>付款完成：NT$${amount}`;
                         document.getElementById('check_store').textContent = `店家名稱：${storeName}`;
                         document.getElementById('check_time').textContent = `付款時間：${data.time}`;
                         // document.getElementById('confirmMessage').textContent = `請使用瀏覽器右上角的 X 按鈕關閉`;

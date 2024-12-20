@@ -61,6 +61,13 @@
     if (storeName) {
       getRecords(storeName, null, null);
       helper = false;
+      if (storeName === 'C3EBEA8960A7981BCF8F11663C7278C9' 
+            || storeName === 'E62305B2B01D4971419083AE9B6D2488'
+            || storeName === '55A8E583450478A19382179318D91C44'
+            || storeName === '3EF085E57AAFA7639B15A4119E47DB64') {
+
+        helper = true;
+      }
       // document.getElementById("recordSelect").style = 
     } else if (memberId) {
 
@@ -193,7 +200,7 @@
           cardContent.appendChild(store);
 
           const amount = document.createElement("p");
-          amount.textContent = `金額: ${item.amount}`;
+          amount.textContent = `金額: ${Math.abs(item.amount)}`;
           cardContent.appendChild(amount);
           if (item.check_flag === 1) {
             sum += item.amount;
@@ -245,8 +252,8 @@
           if (!item.check_flag) {
             cancelButton.disabled = true;
             cancelButton.textContent = "已退款";
+            cancelButton.style.opacity = 0.3;
           }
-          
           if (helper == false) {
             card.appendChild(cancelButton);
           }

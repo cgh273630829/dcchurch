@@ -44,13 +44,17 @@ if ($conn->connect_error) {
 $logger->write("member: $member, store: $store, check_flag: $check_flag");
 // 取得當前時間
 // 建立查詢語句
+$storeSql = "AND s.store_id LIKE ?";
+if ($store === '541CB233B2451B82086BB437AC316D6C') {
+    $storeSql = "AND s.name LIKE '小老闆的店%'";
+}
 $sql = "SELECT tr.id, m.user_id, m.name AS member_name, s.name AS store_name, tr.amount, tr.trade_time, tr.check_flag
         FROM trade_records tr
         JOIN members m
         ON tr.member_id = m.id
         JOIN stores s
         ON tr.store_id = s.id
-        WHERE m.user_id LIKE ? AND s.store_id LIKE ? AND tr.check_flag LIKE ?
+        WHERE m.user_id LIKE ? $storeSql AND tr.check_flag LIKE ?
         ORDER BY tr.trade_time DESC"; // 確保能夠正常運作
 
 // 根據選擇的店家過濾
@@ -68,7 +72,11 @@ $stmt = $conn->prepare($sql);
 
 // 如果需要，綁定參數
 // if ($store !== 'all') {
-$stmt->bind_param("sss", $member, $store, $check_flag);
+if ($store === '541CB233B2451B82086BB437AC316D6C') {
+    $stmt->bind_param("ss", $member, $check_flag);
+} else {
+    $stmt->bind_param("sss", $member, $store, $check_flag);
+}
 // }
 
 // 執行查詢並返回結果
