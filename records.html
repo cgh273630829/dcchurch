@@ -166,6 +166,7 @@
         let helperSum = 0;
         let consumeSum = 0;
         let detail = {};
+        let checkout = {};
         console.log(`data: ${JSON.stringify(data, undefined, 2)}`);
         // Clear previous data
         const container = document.getElementById("dataContainer");
@@ -271,11 +272,21 @@
           } else {
             detail[item.member_name] += Number(item.amount);
           }
+          let checkoutStore = item.store_name;
+          if (checkoutStore.includes('小老闆的店-')) {
+            checkoutStore = '小老闆的店';
+          }
+          if (!checkout[checkoutStore]) {
+            checkout[checkoutStore] = Number(item.amount);
+          } else {
+            checkout[checkoutStore] += Number(item.amount);
+          }
 
         });
         document.getElementById("sum").textContent = `${sum >= 0 ? '支出' : '收入'} ${sum >= 0 ? sum : 0 - sum} 元`;
         if (store === 'all') {
           let remain = 0;
+          let checkoutSum = 0;
           for (const key in detail) {
             if (detail[key] === 0) {
               delete detail[key]; // 刪除值為0的鍵
@@ -283,6 +294,14 @@
               remain += detail[key];
             }
           }
+          for (const key in checkout) {
+            if (checkout[key] >= 0) {
+              delete checkout[key]; // 刪除值為0的鍵
+            } else {
+              checkoutSum += checkout[key];
+            }
+          }
+
           let table = '<table border="1"><tr><th>姓名</th><th>剩餘金額</th></tr>';
 
           // 添加行
@@ -291,11 +310,22 @@
           }
           table += `<tr><td>總計</td><td>${remain}</td></tr>`;
           table += '</table>';
-          document.getElementById("sum").innerHTML = `領券人數: ${helperSum/200}</br>
-                                                      餐券支出: ${helperSum}</br>
-                                                      總消費金額: ${consumeSum}</br>
-                                                      總剩餘金額: ${helperSum - consumeSum}</br>
-                                                      ${table}`;
+
+          let checkoutTable = '<table border="1"><tr><th>攤位</th><th>收入金額</th></tr>';
+          // 添加行
+          for (const [key, value] of Object.entries(checkout)) {
+            checkoutTable += `<tr><td>${key}</td><td>${0-value}</td></tr>`;
+          }
+          checkoutTable += `<tr><td>總計</td><td>${0-checkoutSum}</td></tr>`;
+          checkoutTable += '</table>';
+
+
+          document.getElementById("sum").innerHTML = `領券人數: ${helperSum/200}<br>
+                                                      餐券支出: ${helperSum}<br>
+                                                      總消費金額: ${consumeSum}<br>
+                                                      總剩餘金額: ${helperSum - consumeSum}<br>
+                                                      ${table}<br>
+                                                      ${checkoutTable}<br>`;
         }
       })
       .catch(error => console.error('Error fetching data:', error));

@@ -64,6 +64,13 @@
             /* 與數字保持間距 */
         }
 
+        .left .countdown {
+            font-size: calc(5vw);
+            margin: 10px 0;
+            color: #FFFFFF;
+            text-align: center;
+        }
+
         .left h1 {
             font-size: 3rem;
             margin: 10px 0;
@@ -107,12 +114,21 @@
             height: 100%;
             object-fit: contain;
         }
+        
     </style>
 </head>
 
 <body>
     <div class="left">
-        <div>
+        <div id="countdownDiv">
+            <div class="countdown">
+                <span id="currentTime">00:00:00</span>
+            </div>
+            <div class="countdown" id="countdownDisplay">
+                直到活動開始
+            </div>
+        </div>
+        <div id="couponDiv" style="display: none;">
             <div class="counter">
                 <span>已領取</span>
             </div>
@@ -169,6 +185,33 @@
         ws.onopen = function () {
             console.log('Connected to WebSocket server');
         };
+
+        function updateTime() {
+            const now = new Date();
+            const currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('currentTime').innerHTML = `目前時間<br>${currentTime}`;
+
+            const eventTime = new Date();
+            eventTime.setFullYear(2024, 11, 22);  // 設定年份為2024，月份為12月(索引從0開始，11代表12月)，日期為22日
+            eventTime.setHours(16, 0, 0, 0);  // 設定時間為16:00:00.000
+
+            if (now < eventTime) {
+                const diff = eventTime - now;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('countdownDisplay').innerHTML = `<br>倒數<br> ${hours} 時 ${minutes} 分 ${seconds} 秒`;
+            } else {
+                // Show the coupon section after 4 PM
+                document.getElementById('countdownDiv').style.display = 'none';
+                document.getElementById('couponDiv').style.display = 'block';
+            }
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime();  // Initial call to display time immediately
 
         function getDigitalCount() {
             fetch('helper.php')
