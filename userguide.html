@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐券管理</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .left,
+        .right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .left {
+            background-color: #2E8B57;
+            text-align: left;
+            /* 讓內容靠左對齊 */
+            padding: 20px;
+            /* 添加內邊距讓內容不緊貼邊界 */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            /* 讓內容垂直對齊頂端 */
+        }
+
+        .left .counter {
+            font-size: calc(5vw);
+            /* 調整文字大小 */
+            margin: 10px 0;
+            display: flex;
+            /* 使用彈性佈局 */
+            align-items: center;
+            /* 左右對齊 */
+            color: #FFFFFF;
+            padding-top: 70px;
+        }
+
+        .left .counter span.label {
+            flex: 1;
+            font-size: calc(8vw);
+            /* 使用相對於視窗寬度的字體大小 */
+        }
+
+        .left .counter span.number {
+            display: inline-block;
+            width: 3ch;
+            font-size: calc(8vw);
+            /* 字體大小與描述文字保持一致 */
+            text-align: right;
+        }
+
+        .left .counter span.unit {
+            margin-left: 10px;
+            /* 與數字保持間距 */
+        }
+
+        .left h1 {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+
+        .right {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slideshow {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slideshow img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .slideshow img.active {
+            display: block;
+        }
+
+        .full-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+        }
+
+        .full-screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="left">
+        <div>
+            <div class="counter">
+                <span>已領取</span>
+            </div>
+            <div class="counter">
+                <span>數位餐券：</span>
+                <span id="digitalCount">0</span>
+                <span class="unit">人</span>
+            </div>
+            <div class="counter">
+                <span>餐　　券：</span>
+                <span id="paperCount">0</span>
+                <span class="unit">人</span>
+            </div>
+        </div>
+    </div>
+    <div class="right">
+        <div class="slideshow">
+            <img src="img/userguide/01userguide.JPG" class="active" alt="Image 1">
+            <img src="img/userguide/02userguide.JPG" alt="Image 2">
+            <img src="img/userguide/03userguide.JPG" alt="Image 3">
+            <img src="img/userguide/04userguide.JPG" alt="Image 4">
+            <img src="img/userguide/05userguide.JPG" alt="Image 5">
+            <img src="img/userguide/06userguide.JPG" alt="Image 6">
+            <img src="img/userguide/07userguide.JPG" alt="Image 7">
+            <img src="img/userguide/08userguide.JPG" alt="Image 8">
+            <img src="img/userguide/09userguide.JPG" alt="Image 9">
+            <img src="img/userguide/10userguide.JPG" alt="Image 10">
+            <img src="img/userguide/11userguide.JPG" alt="Image 11">
+            <!-- <button class="left" onclick="prevImage()">&#9664;</button>
+            <button class="right" onclick="nextImage()">&#9654;</button> -->
+        </div>
+        <div class="full-screen" id="fullScreenImage">
+            <img id="fullScreenImg" src="img/userguide/christmas.jpg" alt="Full Screen Image">
+        </div>
+    </div>
+
+    <script>
+
+        const ws = new WebSocket('wss://www.wjtolive.com:8080');  // 連接 PHP WebSocket 伺服器
+
+        ws.onmessage = function (event) {
+            console.log(`event: ${JSON.stringify(event, null, 2)}`);
+            const data = JSON.parse(event.data);
+            console.log('Received message from WebSocket:', data);
+            if (data.event === 'helper') {
+                console.log(`helper`);
+                // 假設這裡根據店家名稱刷新紀錄
+                if (data.member_id) {
+                    getDigitalCount();
+                }
+            }
+        };
+
+        ws.onopen = function () {
+            console.log('Connected to WebSocket server');
+        };
+
+        function getDigitalCount() {
+            fetch('helper.php')
+            .then(response => response.json())
+            .then(data => {
+                let sum = 0;
+                data.forEach(coupon => {
+
+                    // 可修改數量欄位
+                    let count = Number(coupon.amount) / 200;
+                    if (coupon.check_flag === '1') {
+                        sum += count;
+                    }
+
+                });
+                document.getElementById('digitalCount').innerText = sum;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+        
+
+        // 紙本餐券人數管理
+        let slideshowCount = 0;
+        let fullScreenMode = false;
+        const fullScreenImage = document.getElementById('fullScreenImage');
+        const fullScreenImg = document.getElementById('fullScreenImg');
+        let paperCount = 0;
+        let autoPlay = true;
+        const paperCountDisplay = document.getElementById('paperCount');
+
+        function setPaperCount(amount) {
+            paperCount = Math.max(0, amount);
+            paperCountDisplay.innerText = paperCount;
+        }
+
+        function incrementPaperCount(amount) {
+            paperCount = Math.max(0, paperCount + amount);
+            paperCountDisplay.innerText = paperCount;
+        }
+
+        function toggleAutoPlay() {
+            if (autoPlay) {
+                clearInterval(autoPlayInterval);
+            } else {
+                autoPlayInterval = setInterval(nextImage, 8000);
+            }
+            autoPlay = !autoPlay;
+        }
+
+        // 幻燈片功能
+        const images = document.querySelectorAll('.slideshow img');
+        let currentImageIndex = 0;
+
+        function showImage(index) {
+            images[currentImageIndex].classList.remove('active');
+            currentImageIndex = (index + images.length) % images.length;
+            images[currentImageIndex].classList.add('active');
+        }
+
+        function nextImage() {
+            if (currentImageIndex === images.length - 1) {
+                slideshowCount++;
+            }
+            showImage(currentImageIndex + 1);
+            if (slideshowCount === 5 && !fullScreenMode) {
+                slideshowCount = 0;
+                enterFullScreen();
+            }
+        }
+
+        function prevImage() {
+            showImage(currentImageIndex - 1);
+        }
+
+        function enterFullScreen() {
+            fullScreenImage.style.display = 'flex';
+            // fullScreenImg.src = images[currentImageIndex].src;
+            fullScreenMode = true;
+            setTimeout(exitFullScreen, 10000); // Auto exit after 10 seconds
+            toggleAutoPlay();
+        }
+
+        function exitFullScreen() {
+            fullScreenImage.style.display = 'none';
+            fullScreenMode = false;
+            slideshowCount = 0; // Reset count after full-screen exit
+            showImage(currentImageIndex); // Return to regular slideshow
+            toggleAutoPlay();
+        }
+        // 自動切換圖片
+        let autoPlayInterval = setInterval(nextImage, 8000);
+
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+            if (fullScreenMode) {
+                exitFullScreen();
+            } else if (key === 'ArrowRight') {
+                nextImage();
+                toggleAutoPlay();
+                toggleAutoPlay();
+            } else if (key === 'ArrowLeft') {
+                prevImage();
+                toggleAutoPlay();
+                toggleAutoPlay();
+            } else if (key === 'Home') {
+                showImage(0);
+            } else if (key === ' ') {
+                toggleAutoPlay();
+            } else if (key === "+") {
+                inputBuffer = ""; // 清空暫存輸入
+                const handleKeyInput = (e) => {
+                    if (e.key === "Enter") {
+                        if (!isNaN(inputBuffer) && inputBuffer.trim() !== "") {
+                            incrementPaperCount(Number(inputBuffer));
+                        }
+                        inputBuffer = ""; // 清空緩衝區
+                        document.removeEventListener("keydown", handleKeyInput); // 停止監聽
+                    } else if (!isNaN(e.key) || e.key === ".") {
+                        inputBuffer += e.key; // 儲存數字輸入（含小數點）
+                    } else {
+                        inputBuffer = ""; // 非數字輸入，清空
+                        document.removeEventListener("keydown", handleKeyInput); // 停止監聽
+                    }
+                };
+                document.addEventListener("keydown", handleKeyInput);
+            }
+            // 等號功能：直接設置數字
+            else if (key === "=") {
+                inputBuffer = ""; // 清空暫存輸入
+                const handleKeyInput = (e) => {
+                    if (e.key === "Enter") {
+                        if (!isNaN(inputBuffer) && inputBuffer.trim() !== "") {
+                            setPaperCount(Number(inputBuffer));
+                        }
+                        inputBuffer = ""; // 清空緩衝區
+                        document.removeEventListener("keydown", handleKeyInput); // 停止監聽
+                    } else if (!isNaN(e.key) || e.key === ".") {
+                        inputBuffer += e.key; // 儲存數字輸入（含小數點）
+                    } else {
+                        inputBuffer = ""; // 非數字輸入，清空
+                        document.removeEventListener("keydown", handleKeyInput); // 停止監聽
+                    }
+                };
+                document.addEventListener("keydown", handleKeyInput);
+            }
+        });
+        getDigitalCount();
+    </script>
+</body>
+
+</html>
