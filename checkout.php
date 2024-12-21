@@ -29,7 +29,11 @@ $logger->write("memberName: $memberName, storeid: $storeid, userid: $userid");
 // 取得當前時間
 $currentDateTime = date('Y-m-d H:i:s');
 
-if ($password !== '7777') {
+if (!($password === '7777' 
+        || ($password === '0531' && ($storeid === 'C3EBEA8960A7981BCF8F11663C7278C9' 
+        || $storeid === 'E62305B2B01D4971419083AE9B6D2488'
+        || $storeid === '55A8E583450478A19382179318D91C44'
+        || $storeid === '3EF085E57AAFA7639B15A4119E47DB64')))) {
     echo json_encode(["success" => false]);
 }
 
