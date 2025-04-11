@@ -1,7 +1,4 @@
 <?php
-require_once 'Log.php';
-// 創建 Log 類的實例
-$logger = new Log('/var/log/php_errors.log');
 // 設定 Content-Type 為 JSON
 header("Access-Control-Allow-Origin: https://dcch-70th.web.app");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
