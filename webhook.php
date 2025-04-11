@@ -1,5 +1,18 @@
 <?php
+require_once 'Log.php';
+// 創建 Log 類的實例
+$logger = new Log('/var/log/php_errors.log');
 // 設定 Content-Type 為 JSON
+header("Access-Control-Allow-Origin: https://dcch-70th.web.app");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+
+// 處理預檢請求（CORS preflight）
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204); // No Content
+    exit();
+}
+
 header("Content-Type: application/json");
 
 // 讀取來自 LINE 的請求
@@ -24,7 +37,19 @@ foreach ($events as $event) {
     }
 }
 
-// 根據不同消息內容給予特定回應的函數
+$input = json_decode(file_get_contents('php://input'), true);
+
+if (isset($input['to']) && isset($input['message'])) {
+    $userId = $input['to'];
+    $msg = $input['message'];
+
+    // 呼叫 LINE 推播
+    pushMessage($userId, $msg, $accessToken);
+
+    echo json_encode(['status' => 'pushed', 'userid' => $userId, 'msg' => $msg]);
+    exit;
+}
+
 function handleIncomingMessage($message, $userId, $accessToken) {
     // 取得使用者名稱
     $userName = getUserName($userId, $accessToken);
@@ -33,12 +58,16 @@ function handleIncomingMessage($message, $userId, $accessToken) {
     
     // 根據消息內容返回不同的回應
     switch ($lowerMessage) {
-        case '餐券':
-            return createButtonMessage("領取餐券", "https://www.wjtolive.com/christmas/claim.html?member=$encodedUserName&userid=$userId");
-        case '市集':
-            return createButtonMessage("逛市集", "https://www.wjtolive.com/christmas/dashboard.html?member=$encodedUserName&userid=$userId");
-        case '結帳':
-            return createButtonMessage("設定結帳", "https://www.wjtolive.com/christmas/checkout.html?member=$encodedUserName&userid=$userId");
+        case '70周年':
+        case '70週年':
+        case '70':
+            return createButtonMessage("上傳照片", "https://dcch-70th.web.app?member=$encodedUserName");
+        // case '餐券':
+        //     return createButtonMessage("領取餐券", "https://www.wjtolive.com/christmas/claim.html?member=$encodedUserName&userid=$userId");
+        // case '市集':
+        //     return createButtonMessage("逛市集", "https://www.wjtolive.com/christmas/dashboard.html?member=$encodedUserName&userid=$userId");
+        // case '結帳':
+        //     return createButtonMessage("設定結帳", "https://www.wjtolive.com/christmas/checkout.html?member=$encodedUserName&userid=$userId");
         case 'cgh':
             return "Hi! $userName, $userId";
     }
@@ -51,7 +80,7 @@ function createButtonMessage($text, $link) {
         'altText' => '這是一個按鈕樣板',
         'template' => [
             'type' => 'buttons',
-            'title' => '聖誕市集',
+            'title' => '70週年紀念冊',
             'text' => '請點擊按鈕前往',
             'actions' => [
                 [
@@ -121,6 +150,33 @@ function replyMessage($replyToken, $message, $accessToken) {
     if ($result === FALSE) {
         error_log("Error replying message: " . print_r($result, true));
     }
+}
+
+// ✅ 推播功能：主動發訊息
+function pushMessage($userId, $message, $accessToken) {
+    $url = 'https://api.line.me/v2/bot/message/push';
+
+    $data = [
+        'to' => $userId,
+        'messages' => [
+            [
+                'type' => 'text',
+                'text' => $message,
+            ],
+        ],
+    ];
+
+    $options = [
+        'http' => [
+            'header'  => "Content-Type: application/json\r\n" .
+                         "Authorization: Bearer {$accessToken}\r\n",
+            'method'  => 'POST',
+            'content' => json_encode($data),
+        ],
+    ];
+
+    $context  = stream_context_create($options);
+    file_get_contents($url, false, $context);
 }
 
 // 返回 HTTP 200
